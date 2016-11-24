@@ -1,11 +1,10 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
 
     defaultConfig {
-        applicationId "io.github.anotherme17.commonadaptersample"
         minSdkVersion 15
         targetSdkVersion 23
         versionCode 1
@@ -23,9 +22,5 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.2.0'
-    compile 'com.jakewharton:butterknife:7.0.1'
-    compile 'com.orhanobut:logger:1.4'
     compile 'com.android.support:recyclerview-v7:23.2.0'
-    compile project(':commonadapter')
-    compile project(':common-rv-adapter')
 }

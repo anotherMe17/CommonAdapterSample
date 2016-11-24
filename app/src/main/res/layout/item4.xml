@@ -4,13 +4,8 @@
               android:layout_height="wrap_content"
               android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/item3_et"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
-    <Button
-        android:id="@+id/item3_btn"
+    <TextView
+        android:id="@+id/item4_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 </LinearLayout>

@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private int itemType = 0;
 
     private List<String> datas;
+    private List<Integer> types;
     private CommonAdapterUitl<String> adapterUitl;
 
     @Override
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         datas.add("2");
         datas.add("3");
         datas.add("4");
-        List<Integer> types = new ArrayList<>();
+        types = new ArrayList<>();
         types.add(ItemView1.TYPE);
         types.add(ItemView2.TYPE);
         types.add(ItemView1.TYPE);
@@ -92,11 +93,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addItem1() {
-        adapterUitl.addSignalItem("test", 2);
+        datas.add(2, "test");
+        adapterUitl.notifyDataSetChanged();
+        //adapterUitl.addSignalItem("test", 2);
     }
 
     private void addItem3() {
-        adapterUitl.addMultiItem("Test", ItemView2.TYPE, 2);
+        datas.add(2,"test");
+        types.add(2,ItemView2.TYPE);
+        adapterUitl.notifyDataSetChanged();
+        //adapterUitl.addMultiItem("Test", ItemView2.TYPE, 2);
     }
 
     @OnClick({R.id.item_type_1, R.id.item_type_2, R.id.item_type_3})

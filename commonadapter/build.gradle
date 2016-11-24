@@ -1,12 +1,14 @@
 apply plugin: 'com.android.library'
+apply plugin: 'maven'
+apply plugin: 'com.novoda.bintray-release'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion "24.0.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 24
+        targetSdkVersion 23
         versionCode 1
         versionName "1.0"
     }
@@ -16,10 +18,24 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false
+    }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.android.support:appcompat-v7:23.2.0'
+}
+
+publish {
+    userOrg = 'anotherme17'//bintray.com用户名
+    groupId = 'com.anotherme17'//jcenter上的路径
+    artifactId = 'common-adapter'//项目名称
+    publishVersion = '0.0.1'//版本号
+    desc = 'An CommonAdapter for ListView or RecyclerVIew'//描述，不重要
+    website = 'https://github.com/anotherMe17/CommonAdapterSample'
+    //网站，不重要；尽量模拟github上的地址，例如我这样的；当然你有地址最好了
 }

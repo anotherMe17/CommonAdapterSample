@@ -20,7 +20,7 @@ import io.github.anotherme17.commonadapter.ViewHolder;
 public class ItemView3 implements ItemViewDelegate<String> {
     private static final String TAG = "ItemView3";
 
-    public static final int TYPE = 3;
+    public static final int TYPE = 5;
 
     @Override
     public int getItemLayoutId() {
@@ -28,8 +28,13 @@ public class ItemView3 implements ItemViewDelegate<String> {
     }
 
     @Override
-    public boolean isForViewType(String data, int position, int viewType) {
-        return TYPE == viewType;
+    public int getItemViewId() {
+        return TYPE;
+    }
+
+    @Override
+    public void onViewHolderCreated(Context context, View view, String data, int position) {
+
     }
 
     @Override

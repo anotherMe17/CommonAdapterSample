@@ -1,6 +1,7 @@
 package io.github.anotherme17.commonadaptersample;
 
 import android.content.Context;
+import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
@@ -27,9 +28,15 @@ public class ItemView2 implements ItemViewDelegate<String> {
     }
 
     @Override
-    public boolean isForViewType(String data, int position, int indexViewType) {
-        return TYPE == indexViewType;
+    public int getItemViewId() {
+        return TYPE;
     }
+
+    @Override
+    public void onViewHolderCreated(Context context, View view, String data, int position) {
+
+    }
+
 
     @Override
     public void convert(Context context,ViewHolder viewHolder, final String data, final int position) {

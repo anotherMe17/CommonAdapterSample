@@ -1,13 +1,10 @@
 package io.github.anotherme17.commonadaptersample;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
-
-import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,9 +12,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.github.anotherme17.commonadapter.CommonAdapter;
-import io.github.anotherme17.commonadapter.MultiAdapter;
-import io.github.anotherme17.commonadapter.ViewHolder;
+import io.github.anotherme17.commonadapter.common.CommonAdapterUitl;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,19 +25,16 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.item_type_3)
     Button mItemType3;
 
-    private int itemType = 1;
+    private int itemType = 0;
 
-    private CommonAdapter<String> mAdapter;
-    private MultiAdapter<String> mMultiAdapter;
     private List<String> datas;
+    private CommonAdapterUitl<String> adapterUitl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
-
     }
 
     private void setItemType1() {
@@ -51,20 +43,10 @@ public class MainActivity extends AppCompatActivity {
         datas.add("1");
         datas.add("2");
         datas.add("3");
-
-        mAdapter = new CommonAdapter<String>(MainActivity.this, datas, R.layout.item_normal) {
-            @Override
-            public void convert(Context context, ViewHolder viewHolder, final String data, final int position) {
-                viewHolder.setText(R.id.item_normal_tv, data)
-                        .setOnClickListener(R.id.item_normal_tv, new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                Logger.v("TEST", "Item data = " + data + " position = " + position + " is clicked");
-                            }
-                        });
-            }
-        };
-        mListview.setAdapter(mAdapter);
+        datas.add("4");
+        adapterUitl = new CommonAdapterUitl.Builder<String>()
+                .createSignalAdapter(MainActivity.this, datas, new ItemView1())
+                .load(mListview);
     }
 
     private void setItemType2() {
@@ -78,52 +60,53 @@ public class MainActivity extends AppCompatActivity {
         types.add(ItemView1.TYPE);
         types.add(ItemView2.TYPE);
         types.add(ItemView1.TYPE);
+        types.add(ItemView1.TYPE);
         types.add(ItemView2.TYPE);
-
-        mMultiAdapter = new MultiAdapter<>(MainActivity.this, datas, types)
-                .addViewDelegate(new ItemView1(), ItemView1.TYPE)
-                .addViewDelegate(new ItemView2(), ItemView2.TYPE);
-        mListview.setAdapter(mMultiAdapter);
-
+        types.add(ItemView1.TYPE);
+        adapterUitl = new CommonAdapterUitl.Builder<String>()
+                .createMultiAdapter(MainActivity.this, datas, types)
+                .addItemDegelate(new ItemView1())
+                .addItemDegelate(new ItemView2())
+                .load(mListview);
     }
 
     private void setItemType3() {
         itemType = 3;
-
         datas = new ArrayList<>();
         datas.add("1");
         datas.add("2");
         datas.add("3");
         datas.add("4");
-        datas.add("5");
-        datas.add("6");
         List<Integer> types = new ArrayList<>();
         types.add(ItemView1.TYPE);
         types.add(ItemView2.TYPE);
-        types.add(ItemView3.TYPE);
+        types.add(ItemView1.TYPE);
         types.add(ItemView1.TYPE);
         types.add(ItemView2.TYPE);
         types.add(ItemView1.TYPE);
-
-        mMultiAdapter = new MultiAdapter<>(MainActivity.this, datas, types)
-                .addViewDelegate(new ItemView1(), ItemView1.TYPE)
-                .addViewDelegate(new ItemView2(), ItemView2.TYPE)
-                .addViewDelegate(new ItemView3(), ItemView3.TYPE);
-        mListview.setAdapter(mMultiAdapter);
+        adapterUitl = new CommonAdapterUitl.Builder<String>()
+                .createMultiAdapter(MainActivity.this, datas, types)
+                .addItemDegelate(new ItemView1())
+                .addItemDegelate(new ItemView2())
+                .load(mListview);
     }
 
-    private void addItem() {
-        datas = new ArrayList<>();
-        datas.add("1");
-        datas.add("2");
-        datas.add("3");
+    private void addItem1() {
+        adapterUitl.addSignalItem("test", 2);
+    }
+
+    private void addItem3() {
+        adapterUitl.addMultiItem("Test", ItemView2.TYPE, 2);
     }
 
     @OnClick({R.id.item_type_1, R.id.item_type_2, R.id.item_type_3})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.item_type_1:
-                setItemType1();
+                if (itemType != 1)
+                    setItemType1();
+                else
+                    addItem1();
                 break;
             case R.id.item_type_2:
                 setItemType2();
@@ -132,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
                 if (itemType != 3) {
                     setItemType3();
                 } else {
-                    addItem();
+                    addItem3();
                 }
                 break;
         }

@@ -2,6 +2,7 @@ package io.github.anotherme17.commonadapter;
 
 import android.content.Context;
 import android.support.annotation.LayoutRes;
+import android.view.View;
 
 /**
  * 项目名称：RapidDevelopemt
@@ -16,7 +17,9 @@ public interface ItemViewDelegate<T> {
     @LayoutRes
     int getItemLayoutId();
 
-    public abstract boolean isForViewType(T data, int position, int viewType);
+    public abstract int getItemViewId();
 
-    public abstract void convert(Context context,ViewHolder viewHolder, T data, int position);
+    public abstract void onViewHolderCreated(Context context, View view, T data, int position);
+
+    public abstract void convert(Context context, ViewHolder viewHolder, T data, int position);
 }

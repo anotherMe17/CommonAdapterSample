@@ -7,6 +7,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.orhanobut.logger.Logger;
 
@@ -18,6 +19,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.github.anotherme17.commonrvadapter.RvBaseMultiAdapter;
 import io.github.anotherme17.commonrvadapter.common.RvCommonAdapterUtil;
+import io.github.anotherme17.commonrvadapter.wapper.LoadMoreWrapper;
 
 /**
  * 项目名称：CommonAdapterSample
@@ -39,8 +41,8 @@ public class RvActivity extends AppCompatActivity {
 
     private int itemType = 0;
 
-    private List<String> datas;
-    private List<Integer> types;
+    private List<String> datas = new ArrayList<>();
+    private List<Integer> types = new ArrayList<>();
     private RvCommonAdapterUtil<String> adapterUitl;
 
     @Override
@@ -49,6 +51,35 @@ public class RvActivity extends AppCompatActivity {
         setContentView(R.layout.activity_rv);
         ButterKnife.bind(this);
         mRecyclerview.setLayoutManager(new LinearLayoutManager(this));
+
+        adapterUitl = new RvCommonAdapterUtil<String>(RvActivity.this, datas);
+        ItemView1 itemView1 = new ItemView1();
+        adapterUitl.addItemViewDegelate(itemView1);
+        adapterUitl.setSignalMode(itemView1.getItemViewId());
+
+        adapterUitl.initWraper(RvCommonAdapterUtil.EMPTY_VIEW | RvCommonAdapterUtil.HEAD_AND_FOOTER_VIEW | RvCommonAdapterUtil.LOAD_MORE_VIEW);
+
+        TextView emptyView = new TextView(this);
+        emptyView.setText("this is empty view");
+        adapterUitl.setEmptyView(emptyView);
+        TextView headerView = new TextView(this);
+        headerView.setText("this is header view");
+        adapterUitl.setHeaderView(headerView);
+        TextView footerView = new TextView(this);
+        footerView.setText("this is footer view");
+        adapterUitl.setFooterView(footerView);
+        TextView loadMoreView = new TextView(this);
+        loadMoreView.setText("this is load more view");
+        adapterUitl.setLoadMoreView(loadMoreView);
+
+        adapterUitl.setLoadMoreListener(new LoadMoreWrapper.OnLoadMoreListener() {
+            @Override
+            public void onLoadMoreRequested() {
+                Logger.v("TEST", "load more");
+            }
+        });
+
+        adapterUitl.loadWrapper(mRecyclerview);
     }
 
     private void setItemType1() {
@@ -103,7 +134,7 @@ public class RvActivity extends AppCompatActivity {
                 .createMultiAdapter(RvActivity.this, datas, types)
                 .addItemDegelate(new ItemView1())
                 .addItemDegelate(new ItemView2())
-                .addItemDegelate(new ItemView4())
+                .addItemDegelate(new ItemView3())
                 .setOnItemClickListener(new RvBaseMultiAdapter.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, RecyclerView.ViewHolder holder, int position) {
@@ -128,7 +159,7 @@ public class RvActivity extends AppCompatActivity {
      /*   datas.add(2, "test");
         types.add(2, ItemView2.TYPE);
         adapterUitl.notifyDataSetChanged();*/
-        adapterUitl.addMultiItem("Test", ItemView4.TYPE, 2);
+        adapterUitl.addMultiItem("Test", ItemView3.TYPE, 2);
     }
 
     @OnClick({R.id.rv_item_type_1, R.id.rv_item_type_2, R.id.rv_item_type_3})

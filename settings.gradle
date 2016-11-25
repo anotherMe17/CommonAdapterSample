@@ -1,1 +1,1 @@
-include ':app', ':commonadapter'
+include ':app', ':commonadapter', ':common-rv-adapter'

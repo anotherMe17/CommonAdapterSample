@@ -9,6 +9,8 @@ import com.orhanobut.logger.Logger;
 
 import io.github.anotherme17.commonadapter.ItemViewDelegate;
 import io.github.anotherme17.commonadapter.ViewHolder;
+import io.github.anotherme17.commonrvadapter.RvItemViewDelegate;
+import io.github.anotherme17.commonrvadapter.RvViewHolder;
 
 /**
  * 项目名称：CommonAdapterSample
@@ -17,7 +19,7 @@ import io.github.anotherme17.commonadapter.ViewHolder;
  * 创建时间：2016/11/21 16:55
  * 修改备注：
  */
-public class ItemView3 implements ItemViewDelegate<String> {
+public class ItemView3 implements ItemViewDelegate<String>,RvItemViewDelegate<String> {
     private static final String TAG = "ItemView3";
 
     public static final int TYPE = 5;
@@ -30,6 +32,24 @@ public class ItemView3 implements ItemViewDelegate<String> {
     @Override
     public int getItemViewId() {
         return TYPE;
+    }
+
+    @Override
+    public void onViewHolderCreated(Context context, View view) {
+
+    }
+
+    @Override
+    public void convert(Context context, RvViewHolder rvViewHolder, final String data, final int position) {
+        final EditText editText = rvViewHolder.getView(R.id.item3_et);
+        Button submit = rvViewHolder.getView(R.id.item3_btn);
+        submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Logger.v("TEST", "Item data = " + data + " position = " + position + " is clicked "
+                        + "message = " + editText.getText().toString());
+            }
+        });
     }
 
     @Override

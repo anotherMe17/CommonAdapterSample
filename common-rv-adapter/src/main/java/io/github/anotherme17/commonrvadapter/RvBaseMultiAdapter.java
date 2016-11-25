@@ -52,7 +52,7 @@ public class RvBaseMultiAdapter<T> extends RecyclerView.Adapter<RvViewHolder> {
         notifyDataSetChanged();
     }
 
-    protected void setSignalMode(int typeId) {
+    public void setSignalMode(int typeId) {
         mViewManager.isSignal = true;
         mViewManager.signalId = typeId;
     }

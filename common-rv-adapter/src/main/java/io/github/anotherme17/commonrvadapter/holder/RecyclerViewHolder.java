@@ -71,7 +71,10 @@ public class RecyclerViewHolder extends RecyclerView.ViewHolder {
     }
 
     public int getAdapterPositionWapper() {
-        // TODO: 2016/12/28 获取Item在recyclerview中的位置 By user798
-        return 1;
+        if (mAdapter.getHeadersCount() > 0) {
+            return getAdapterPosition() - mAdapter.getHeadersCount();
+        } else {
+            return getAdapterPosition();
+        }
     }
 }

@@ -11,7 +11,7 @@ import android.view.ViewGroup;
  * Created by user798 on 2016/12/28.
  */
 
-public class RvHeadAndFootAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public  class RvHeadAndFootAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final int BASE_ITEM_TYPE_HEADER = 1024;
     private static final int BASE_ITEM_TYPE_FOOTER = 2048;

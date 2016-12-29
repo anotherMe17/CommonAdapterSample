@@ -1,14 +1,17 @@
 package io.github.anotherme17.commonrvadapter.adapter;
 
 import android.content.Context;
+import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.anotherme17.commonrvadapter.helper.RvHolderHelper;
+import io.github.anotherme17.commonrvadapter.RvItemViewDelegate;
 import io.github.anotherme17.commonrvadapter.holder.RecyclerViewHolder;
 import io.github.anotherme17.commonrvadapter.listener.OnRvItemChildCheckedChangeListener;
 import io.github.anotherme17.commonrvadapter.listener.OnRvItemChildClickListener;
@@ -22,15 +25,17 @@ import io.github.anotherme17.commonrvadapter.manager.RvDelegateManager;
  * Created by user798 on 2016/12/28.
  */
 
-public abstract class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHolder> {
+public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHolder> {
 
-    private Context mContext;
+    private int mDefaultItemId = 0;
+
+    protected Context mContext;
 
     private List<T> mData;
 
     private RecyclerView mRecyclerView;
 
-    private RvDelegateManager mDelegateManager;
+    private RvDelegateManager<T> mDelegateManager;
 
     private RvHeadAndFootAdapter mHeadAndFootAdapter;
 
@@ -48,6 +53,12 @@ public abstract class RecyclerViewAdapter<T> extends RecyclerView.Adapter<Recycl
         this.mRecyclerView = recyclerView;
         mContext = mRecyclerView.getContext();
         mData = new ArrayList<>();
+        mDelegateManager = new RvDelegateManager<>();
+    }
+
+    public RecyclerViewAdapter(RecyclerView recyclerView, int defaultItemId) {
+        this(recyclerView);
+        this.mDefaultItemId = defaultItemId;
     }
 
     @Override
@@ -58,40 +69,34 @@ public abstract class RecyclerViewAdapter<T> extends RecyclerView.Adapter<Recycl
         holder.getRvHolderHelper().setOnItemChildClickListener(mOnRvItemChildClickListener);
         holder.getRvHolderHelper().setOnItemChildLongClickListener(mOnRvItemChildLongClickListener);
         holder.getRvHolderHelper().setOnItemChildTouchListener(mOnRvItemChildTouchListener);
-        setItemChildListener(holder, viewType);
+        //setItemChildListener(holder.getRvHolderHelper(), viewType);
+
+        RvItemViewDelegate delegate = mDelegateManager.getDelegateByViewType(viewType);
+        delegate.onViewHolderCreated(mContext, holder.getRvHolderHelper());
+        delegate.setItemChildListener(holder.getRvHolderHelper(), viewType);
         return holder;
     }
 
-    /**
-     * 为item的孩子节点设置监听器，并不是每一个数据列表都要为item的子控件添加事件监听器，所以这里采用了空实现，需要设置事件监听器时重写该方法即可
-     *
-     * @param helper
-     */
-    protected void setItemChildListener(RecyclerViewHolder helper, int viewType) {
-    }
+
+ /*   protected void setItemChildListener(RvHolderHelper helper, int viewType) {
+    }*/
 
     @Override
     public void onBindViewHolder(RecyclerViewHolder holder, int position) {
         // 在设置值的过程中忽略选中状态变化
         mIsIgnoreCheckedChanged = true;
-
-        fillData(holder.getRvHolderHelper(), position, getItem(position));
+        //fillData(holder.getRvHolderHelper(), position, getItem(position));
+        mDelegateManager.getDelegateByViewType(holder.getItemViewType()).convert(mContext, holder.getRvHolderHelper(), position, getItem(position));
 
         mIsIgnoreCheckedChanged = false;
     }
 
-    /**
-     * 填充Item的数据
-     *
-     * @param rvHolderHelper
-     * @param position
-     * @param item
-     */
-    public abstract void fillData(RvHolderHelper rvHolderHelper, int position, T item);
+
+    /*public abstract void fillData(RvHolderHelper rvHolderHelper, int position, T item);*/
 
     @Override
     public int getItemViewType(int position) {
-        return mDelegateManager.getItemViewType(position);
+        return mDefaultItemId == 0 ? mDelegateManager.getItemViewType(position, mData.get(position)) : mDefaultItemId;
     }
 
     @Override
@@ -259,7 +264,137 @@ public abstract class RecyclerViewAdapter<T> extends RecyclerView.Adapter<Recycl
         addItem(mData.size(), model);
     }
 
-    // TODO: 2016/12/28 ... By user798
+
+    public void notifyItemChangedWrapper(int position) {
+        if (mHeadAndFootAdapter == null) {
+            notifyItemChanged(position);
+        } else {
+            mHeadAndFootAdapter.notifyItemChanged(mHeadAndFootAdapter.getHeadersCount() + position);
+        }
+    }
+
+    /**
+     * 替换指定索引的数据条目
+     *
+     * @param posotion
+     * @param model
+     */
+    public void setItem(int posotion, T model) {
+        mData.set(posotion, model);
+        notifyItemChangedWrapper(posotion);
+    }
+
+    /**
+     * 替换指定数据条目
+     *
+     * @param oldModel
+     * @param newModel
+     */
+    public void setItem(T oldModel, T newModel) {
+        setItem(mData.indexOf(oldModel), newModel);
+    }
+
+    public void notifyItemMovedWrapper(int fromPosition, int toPosition) {
+        if (mHeadAndFootAdapter == null) {
+            notifyItemMoved(fromPosition, toPosition);
+        } else {
+            mHeadAndFootAdapter.notifyItemMoved(mHeadAndFootAdapter.getHeadersCount() + fromPosition, mHeadAndFootAdapter.getHeadersCount() + toPosition);
+        }
+    }
+
+    /**
+     * 移动数据条目的位置
+     *
+     * @param fromPosition
+     * @param toPosition
+     */
+    public void moveItem(int fromPosition, int toPosition) {
+        notifyItemChangedWrapper(fromPosition);
+        notifyItemChangedWrapper(toPosition);
+
+        // 要先执行上面的 notifyItemChanged,然后再执行下面的 moveItem 操作
+
+        mData.add(toPosition, mData.remove(fromPosition));
+        notifyItemMovedWrapper(fromPosition, toPosition);
+    }
+
+    /**
+     * 移动数据条目的位置。该方法在 ItemTouchHelper.Callback 的 onMove 方法中调用
+     *
+     * @param from
+     * @param to
+     */
+    public void moveItem(RecyclerView.ViewHolder from, RecyclerView.ViewHolder to) {
+        int fromPosition = from.getAdapterPosition();
+        int toPosition = to.getAdapterPosition();
+        if (mHeadAndFootAdapter != null) {
+            mHeadAndFootAdapter.notifyItemChanged(fromPosition);
+            mHeadAndFootAdapter.notifyItemChanged(toPosition);
+
+            // 要先执行上面的 notifyItemChanged,然后再执行下面的 moveItem 操作
+
+            mData.add(toPosition - mHeadAndFootAdapter.getHeadersCount(), mData.remove(fromPosition - mHeadAndFootAdapter.getHeadersCount()));
+            mHeadAndFootAdapter.notifyItemMoved(fromPosition, toPosition);
+        } else {
+            moveItem(fromPosition, toPosition);
+        }
+    }
+
+    /**
+     * @return 获取第一个数据模型
+     */
+    public
+    @Nullable
+    T getFirstItem() {
+        return getItemCount() > 0 ? getItem(0) : null;
+    }
+
+    /**
+     * @return 获取最后一个数据模型
+     */
+    public
+    @Nullable
+    T getLastItem() {
+        return getItemCount() > 0 ? getItem(getItemCount() - 1) : null;
+    }
+
+
+    public void addHeaderView(View headerView) {
+        getHeaderAndFooterAdapter().addHeaderView(headerView);
+    }
+
+    public void addFooterView(View footerView) {
+        getHeaderAndFooterAdapter().addFooterView(footerView);
+    }
+
+    public int getHeadersCount() {
+        return mHeadAndFootAdapter == null ? 0 : mHeadAndFootAdapter.getHeadersCount();
+    }
+
+    public int getFootersCount() {
+        return mHeadAndFootAdapter == null ? 0 : mHeadAndFootAdapter.getFootersCount();
+    }
+
+    public RvHeadAndFootAdapter getHeaderAndFooterAdapter() {
+        if (mHeadAndFootAdapter == null) {
+            synchronized (RecyclerViewAdapter.this) {
+                if (mHeadAndFootAdapter == null) {
+                    mHeadAndFootAdapter = new RvHeadAndFootAdapter(this);
+                }
+            }
+        }
+        return mHeadAndFootAdapter;
+    }
+
+    /**
+     * 是否是头部或尾部
+     *
+     * @param viewHolder
+     * @return
+     */
+    public boolean isHeaderOrFooter(RecyclerView.ViewHolder viewHolder) {
+        return viewHolder.getAdapterPosition() < getHeadersCount() || viewHolder.getAdapterPosition() >= getHeadersCount() + getItemCount();
+    }
 
     /*=== listener ===*/
 
@@ -315,5 +450,18 @@ public abstract class RecyclerViewAdapter<T> extends RecyclerView.Adapter<Recycl
      */
     public void setOnRVItemChildTouchListener(OnRvItemChildTouchListener onRVItemChildTouchListener) {
         mOnRvItemChildTouchListener = onRVItemChildTouchListener;
+    }
+
+    /*=== delegate ===*/
+    public void addDelegate(RvItemViewDelegate<T> delegate) {
+        mDelegateManager.addDelegate(delegate);
+    }
+
+    public void removeDelegate(RvItemViewDelegate<T> delegate) {
+        mDelegateManager.removeDelegate(delegate);
+    }
+
+    public void removeDelegate(@LayoutRes int itemLayoutId) {
+        mDelegateManager.removeDelegate(itemLayoutId);
     }
 }

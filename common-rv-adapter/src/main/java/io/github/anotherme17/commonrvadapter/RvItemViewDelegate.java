@@ -2,7 +2,8 @@ package io.github.anotherme17.commonrvadapter;
 
 import android.content.Context;
 import android.support.annotation.LayoutRes;
-import android.view.View;
+
+import io.github.anotherme17.commonrvadapter.helper.RvHolderHelper;
 
 /**
  * 项目名称：RapidDevelopemt
@@ -17,9 +18,11 @@ public interface RvItemViewDelegate<T> {
     @LayoutRes
     int getItemLayoutId();
 
-    public abstract int getItemViewId();
+    public abstract boolean isDelegate(int position, T itemData);
 
-    public abstract void onViewHolderCreated(Context context, View view);
+    public abstract void onViewHolderCreated(Context context, RvHolderHelper rvHolderHelper);
 
-    public abstract void convert(Context context, RvViewHolder rvViewHolder, T data, int position);
+    public abstract void setItemChildListener(RvHolderHelper helper, int viewType);
+
+    public abstract void convert(Context context, RvHolderHelper rvHolderHelper, int position, T itemData);
 }

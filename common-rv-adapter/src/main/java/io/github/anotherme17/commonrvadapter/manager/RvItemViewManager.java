@@ -27,7 +27,7 @@ public class RvItemViewManager<T> {
     protected List<Integer> mMapTab = new ArrayList<>();
 
     public RvItemViewManager<T> addDelegate(@NonNull RvItemViewDelegate<T> viewDelegate) {
-        int viewTypeId = viewDelegate.getItemViewId();
+       /* int viewTypeId = viewDelegate.getItemViewId();
         if (mDelegate.get(viewTypeId) != null) {
             throw new IllegalArgumentException("An ItemViewDelegate is already registered for the viewTypeId = "
                     + viewTypeId
@@ -35,7 +35,8 @@ public class RvItemViewManager<T> {
                     + mDelegate.get(viewTypeId));
         }
         mDelegate.put(viewTypeId, viewDelegate);
-        return this;
+        return this;*/
+        return null;
     }
 
     public RvItemViewManager<T> addDelegate(@NonNull RvItemViewDelegate<T> viewDelegate, int viewTypeId) {

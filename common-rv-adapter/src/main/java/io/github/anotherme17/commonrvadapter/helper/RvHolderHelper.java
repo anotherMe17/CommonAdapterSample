@@ -19,6 +19,8 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import io.github.anotherme17.commonrvadapter.adapter.RecyclerViewAdapter;
+import io.github.anotherme17.commonrvadapter.adapter.RvHeadAndFootAdapter;
 import io.github.anotherme17.commonrvadapter.holder.RecyclerViewHolder;
 import io.github.anotherme17.commonrvadapter.listener.OnNoDoubleClickListener;
 import io.github.anotherme17.commonrvadapter.listener.OnRvItemChildCheckedChangeListener;
@@ -186,7 +188,21 @@ public class RvHolderHelper implements View.OnLongClickListener, CompoundButton.
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        // TODO: 2016/12/28  onCheckedChanged By user798
+        if (mOnRvItemChildCheckedChangeListener != null) {
+            if (mRecyclerView != null) {
+                RecyclerViewAdapter recyclerViewAdapter;
+
+                RecyclerView.Adapter adapter = mRecyclerView.getAdapter();
+                if (adapter instanceof RvHeadAndFootAdapter) {
+                    recyclerViewAdapter = (RecyclerViewAdapter) ((RvHeadAndFootAdapter) adapter).getInnerAdapter();
+                } else {
+                    recyclerViewAdapter = (RecyclerViewAdapter) adapter;
+                }
+                if (!recyclerViewAdapter.isIgnoreCheckedChanged()) {
+                    mOnRvItemChildCheckedChangeListener.onRvItemChildCheckedChanged(mRecyclerView, buttonView, getPosition(), isChecked);
+                }
+            }
+        }
     }
 
     public ImageView getImageView(@IdRes int viewId) {

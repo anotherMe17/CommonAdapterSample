@@ -1,13 +1,7 @@
 package io.github.anotherme17.commonrvadapter;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
 import android.view.ViewGroup;
-
-import java.util.List;
-
-import io.github.anotherme17.commonrvadapter.manager.RvItemViewManager;
 
 /**
  * 项目名称：CommonAdapterSample
@@ -17,7 +11,21 @@ import io.github.anotherme17.commonrvadapter.manager.RvItemViewManager;
  * 修改备注：
  */
 public class RvBaseMultiAdapter<T> extends RecyclerView.Adapter<RvViewHolder> {
+    @Override
+    public RvViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        return null;
+    }
 
+    @Override
+    public void onBindViewHolder(RvViewHolder holder, int position) {
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return 0;
+    }
+/*
     protected Context mContext;
     protected List<T> mDatas;
 
@@ -139,5 +147,5 @@ public class RvBaseMultiAdapter<T> extends RecyclerView.Adapter<RvViewHolder> {
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
         this.mOnItemClickListener = onItemClickListener;
-    }
+    }*/
 }

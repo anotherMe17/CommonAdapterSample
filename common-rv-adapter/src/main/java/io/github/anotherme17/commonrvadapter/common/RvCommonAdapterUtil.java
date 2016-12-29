@@ -1,17 +1,6 @@
 package io.github.anotherme17.commonrvadapter.common;
 
-import android.content.Context;
-import android.support.v4.util.SparseArrayCompat;
-import android.support.v7.widget.RecyclerView;
-import android.view.View;
-
-import java.util.List;
-
 import io.github.anotherme17.commonrvadapter.RvBaseMultiAdapter;
-import io.github.anotherme17.commonrvadapter.RvItemViewDelegate;
-import io.github.anotherme17.commonrvadapter.wapper.EmptyWrapper;
-import io.github.anotherme17.commonrvadapter.wapper.HeaderAndFooterWrapper;
-import io.github.anotherme17.commonrvadapter.wapper.LoadMoreWrapper;
 
 /**
  * 项目名称：CommonAdapterSample
@@ -23,7 +12,7 @@ import io.github.anotherme17.commonrvadapter.wapper.LoadMoreWrapper;
 public class RvCommonAdapterUtil<T> extends RvBaseMultiAdapter<T> {
     private static final String TAG = "RvCommonAdapterUtil";
 
-    public static final int NULL = 0;
+   /* public static final int NULL = 0;
     public static final int EMPTY_VIEW = 0x1;
     public static final int LOAD_MORE_VIEW = 0x2;
     public static final int HEAD_AND_FOOTER_VIEW = 0x4;
@@ -148,5 +137,5 @@ public class RvCommonAdapterUtil<T> extends RvBaseMultiAdapter<T> {
             recyclerView.setAdapter(mAdapter);
             return mAdapter;
         }
-    }
+    }*/
 }

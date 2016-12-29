@@ -1,0 +1,2 @@
+# CommonAdapterSample
+ListView和RecycleView的万能适配器

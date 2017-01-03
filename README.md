@@ -80,6 +80,7 @@ RecycleView的万能适配器
   	 <artifact name='common-RvAdapter' ext='pom' ></artifact>
 	</dependency>
 
+<span id="Thanks"></span>
 #Thanks
 
 #Copyright

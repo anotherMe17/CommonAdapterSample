@@ -1,17 +1,17 @@
 # CommonAdapterSample
 RecycleView的万能适配器
 ##目录  
-* [版本](#版本)
-  * [V1.1.0](##V1.1.0)
-* [导入项目](#导入项目)  
-  * [Maven](##Maven)
-  * [Gradle](##Gradle)
-  * [lvy](##lvy)
-* [Thanks](#Thanks)
-* [Copyright](#Copyright)
+* [版本](##版本)
+  * [V1.1.0](###V1.1.0)
+* [导入项目](##导入项目)  
+  * [Maven](###Maven)
+  * [Gradle](###Gradle)
+  * [lvy](###lvy)
+* [Thanks](##Thanks)
+* [Copyright](##Copyright)
 
-#版本
-##V1.1.0
+##版本
+###V1.1.0
 使用的Recyclerview版本,使用时请导入
 `provided 'com.android.support:recyclerview-v7:23.2.0'`  
 - [x] 创建时可使用构造者模式  
@@ -65,25 +65,24 @@ RecycleView的万能适配器
                     }
                 })
 				.attatchView(mDataRv);
-#导入项目
-##Maven
+##导入项目
+###Maven
     <dependency>  
     <groupId>com.anotherme17</groupId>  
 	<artifactId>common-RvAdapter</artifactId>  
 	<version>1.1.0</version>  
 	<type>pom</type>  
 	</dependency>
-##Gradle
+###Gradle
 	compile 'com.anotherme17:common-RvAdapter:1.1.0'
-##lvy
+###lvy
 	<dependency org='com.anotherme17' name='common-RvAdapter' rev='1.1.0'>
   	 <artifact name='common-RvAdapter' ext='pom' ></artifact>
 	</dependency>
 
-<span id="Thanks"></span>
-#Thanks
+##Thanks
 
-#Copyright
+##Copyright
 	Copyright {2017} {anotherMe17}
 
    	Licensed under the Apache License, Version 2.0 (the "License");

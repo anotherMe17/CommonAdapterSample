@@ -1,14 +1,14 @@
 # CommonAdapterSample
 RecycleView的万能适配器
 ##目录  
-* [版本](##版本)
-  * [V1.1.0](###V1.1.0)
-* [导入项目](##导入项目)  
-  * [Maven](###Maven)
-  * [Gradle](###Gradle)
-  * [lvy](###lvy)
-* [Thanks](##Thanks)
-* [Copyright](##Copyright)
+* [版本](#版本)
+  * [V1.1.0](#V1.1.0)
+* [导入项目](#导入项目)  
+  * [Maven](#Maven)
+  * [Gradle](#Gradle)
+  * [lvy](#lvy)
+* [Thanks](#Thanks)
+* [Copyright](#Copyright)
 
 ##版本
 ###V1.1.0
@@ -17,11 +17,11 @@ RecycleView的万能适配器
 - [x] 创建时可使用构造者模式  
     
 
-
-	RecyclerViewAdapter<NormalModel> mAdapter;  
-	RecyclerView mDataRv;
- 	mAdapter = new RecyclerViewAdapter.Builder<NormalModel>(mDataRv)
-                .addDelegate(new NormalDelegate())//添加条目
+```java
+RecyclerViewAdapter<NormalModel> mAdapter;      
+RecyclerView mDataRv;
+ mAdapter = new RecyclerViewAdapter.Builder<NormalModel>(mDataRv)
+               	.addDelegate(new NormalDelegate())//添加条目
                 .addDelegate(new TextViewDelegate())
                 .addHeaderView(new TextView(this))//添加头部View
                 .addFooterView(new TextView(this))//添加底部View
@@ -65,6 +65,7 @@ RecycleView的万能适配器
                     }
                 })
 				.attatchView(mDataRv);
+````
 ##导入项目
 ###Maven
     <dependency>  

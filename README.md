@@ -65,25 +65,31 @@ RecyclerView mDataRv;
                     }
                 })
 				.attatchView(mDataRv);
-````
+```
 ##导入项目
 ###Maven
+```groovy
     <dependency>  
     <groupId>com.anotherme17</groupId>  
 	<artifactId>common-RvAdapter</artifactId>  
 	<version>1.1.0</version>  
 	<type>pom</type>  
 	</dependency>
+```
 ###Gradle
+```groovy
 	compile 'com.anotherme17:common-RvAdapter:1.1.0'
+```
 ###lvy
+```groovy
 	<dependency org='com.anotherme17' name='common-RvAdapter' rev='1.1.0'>
   	 <artifact name='common-RvAdapter' ext='pom' ></artifact>
 	</dependency>
-
+```
 ##Thanks
 
 ##Copyright
+```groovy   
 	Copyright {2017} {anotherMe17}
 
    	Licensed under the Apache License, Version 2.0 (the "License");
@@ -97,3 +103,4 @@ RecyclerView mDataRv;
    	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    	See the License for the specific language governing permissions and
    	limitations under the License.
+```

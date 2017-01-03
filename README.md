@@ -2,15 +2,16 @@
 RecycleView的万能适配器
 ##目录  
 * [版本](#版本)
-  * [V1.1.0](#V1.1.0)
+  * [V1.1.0](#v110)
 * [导入项目](#导入项目)  
-  * [Maven](##Maven)
-  * [Gradle](##Gradle)
-  * [lvy](##lvy)
+  * [Maven](#maven)
+  * [Gradle](#gradle)
+  * [lvy](#lvy)
 * [Thanks](#thanks)
 * [Copyright](#copyright)
 
 ##版本
+<b id="v110"/>
 ###V1.1.0
 使用的Recyclerview版本,使用时请导入
 `provided 'com.android.support:recyclerview-v7:23.2.0'`  
@@ -67,6 +68,7 @@ RecyclerView mDataRv;
 				.attatchView(mDataRv);
 ```
 ##导入项目
+<b id="maven"/>
 ###Maven
 ```groovy
     <dependency>  
@@ -77,10 +79,12 @@ RecyclerView mDataRv;
 	</dependency>
 ```
 ###Gradle
+<b id="gradle"/>
 ```groovy
 	compile 'com.anotherme17:common-RvAdapter:1.1.0'
 ```
 ###lvy
+<b id="lvy"/>
 ```groovy
 	<dependency org='com.anotherme17' name='common-RvAdapter' rev='1.1.0'>
   	 <artifact name='common-RvAdapter' ext='pom' ></artifact>

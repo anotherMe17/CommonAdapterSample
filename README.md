@@ -4,11 +4,11 @@ RecycleView的万能适配器
 * [版本](#版本)
   * [V1.1.0](#V1.1.0)
 * [导入项目](#导入项目)  
-  * [Maven](#Maven)
-  * [Gradle](#Gradle)
-  * [lvy](#lvy)
-* [Thanks](#Thanks)
-* [Copyright](#Copyright)
+  * [Maven](##Maven)
+  * [Gradle](##Gradle)
+  * [lvy](##lvy)
+* [Thanks](#thanks)
+* [Copyright](#copyright)
 
 ##版本
 ###V1.1.0
@@ -86,8 +86,10 @@ RecyclerView mDataRv;
   	 <artifact name='common-RvAdapter' ext='pom' ></artifact>
 	</dependency>
 ```
+<b id="thanks"/>
 ##Thanks
 
+<b id="copyright"/>
 ##Copyright
 ```groovy   
 	Copyright {2017} {anotherMe17}

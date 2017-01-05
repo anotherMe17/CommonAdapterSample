@@ -1,6 +1,8 @@
-# CommonAdapterSample
+ :v: CommonAdapterSample :v:
+=============
 RecycleView的万能适配器
 ##目录  
+* [TODO](#todo)
 * [版本](#版本)
   * [V1.1.0](#v110)
 * [导入项目](#导入项目)  
@@ -9,6 +11,13 @@ RecycleView的万能适配器
   * [lvy](#lvy)
 * [Thanks](#thanks)
 * [Copyright](#copyright)
+
+<b id="todo"/>
+##TODO
+- [ ] 增加动画效果
+- [ ] 增加EmptyView
+- [ ] 增加下拉刷新上拉加载
+- [ ] 增加数据绑定
 
 ##版本
 <b id="v110"/>
@@ -92,11 +101,12 @@ RecyclerView mDataRv;
 ```
 <b id="thanks"/>
 ##Thanks
+* [BaseRecyclerViewAdapterHelper](https://github.com/CymChad/BaseRecyclerViewAdapterHelper "BaseRecyclerViewAdapterHelper")
 
 <b id="copyright"/>
 ##Copyright
-```groovy   
-	Copyright {2017} {anotherMe17}
+```
+	Copyright {2017} {lirenhao}
 
    	Licensed under the Apache License, Version 2.0 (the "License");
    	you may not use this file except in compliance with the License.

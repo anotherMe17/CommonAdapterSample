@@ -9,6 +9,7 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.IdRes;
 import android.support.annotation.StringRes;
 import android.support.v4.util.SparseArrayCompat;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.util.TypedValue;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 import io.github.anotherme17.commonrvadapter.adapter.RecyclerViewAdapter;
 import io.github.anotherme17.commonrvadapter.adapter.RvHeadAndFootAdapter;
 import io.github.anotherme17.commonrvadapter.holder.RecyclerViewHolder;
+import io.github.anotherme17.commonrvadapter.listener.OnItemDragCallback;
 import io.github.anotherme17.commonrvadapter.listener.OnNoDoubleClickListener;
 import io.github.anotherme17.commonrvadapter.listener.OnRvItemChildCheckedChangeListener;
 import io.github.anotherme17.commonrvadapter.listener.OnRvItemChildClickListener;
@@ -51,6 +53,7 @@ public class RvHolderHelper implements View.OnLongClickListener, CompoundButton.
     private OnRvItemChildLongClickListener mOnRvItemChildLongClickListener;
     private OnRvItemChildCheckedChangeListener mOnRvItemChildCheckedChangeListener;
     private OnRvItemChildTouchListener mOnRvItemChildTouchListener;
+    private OnItemDragCallback mOnItemDragCallback;
 
     public RvHolderHelper(RecyclerView recyclerView, RecyclerViewHolder recyclerViewHolder) {
         this.mRecyclerView = recyclerView;
@@ -143,6 +146,10 @@ public class RvHolderHelper implements View.OnLongClickListener, CompoundButton.
         this.mOnRvItemChildTouchListener = onItemChildTouchListener;
     }
 
+    public void setOnItemDragCallback(OnItemDragCallback itemDragCallback) {
+        this.mOnItemDragCallback = itemDragCallback;
+    }
+
     /**
      * @param viewId
      */
@@ -181,6 +188,8 @@ public class RvHolderHelper implements View.OnLongClickListener, CompoundButton.
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if (mRecyclerView != null && mOnRvItemChildTouchListener != null) {
+            if (mOnItemDragCallback != null && MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN)
+                mOnItemDragCallback.setDragView(mHolder);
             return mOnRvItemChildTouchListener.onRvItemChilcTouch(mHolder, v, event);
         }
         return false;

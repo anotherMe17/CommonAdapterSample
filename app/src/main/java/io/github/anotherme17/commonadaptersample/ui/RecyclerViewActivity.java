@@ -1,14 +1,18 @@
 package io.github.anotherme17.commonadaptersample.ui;
 
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.view.MotionEventCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
@@ -18,6 +22,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
+import java.util.Calendar;
 import java.util.List;
 
 import cn.bingoogolapple.bgabanner.BGABanner;
@@ -30,12 +35,14 @@ import io.github.anotherme17.commonadaptersample.model.BannerModel;
 import io.github.anotherme17.commonadaptersample.model.NormalModel;
 import io.github.anotherme17.commonadaptersample.ui.widget.Divider;
 import io.github.anotherme17.commonadaptersample.util.SnackbarUtil;
-import io.github.anotherme17.commonrvadapter.Constants;
 import io.github.anotherme17.commonrvadapter.adapter.RecyclerViewAdapter;
+import io.github.anotherme17.commonrvadapter.helper.RvItemTouchHelper;
+import io.github.anotherme17.commonrvadapter.holder.RecyclerViewHolder;
 import io.github.anotherme17.commonrvadapter.listener.OnNoDoubleClickListener;
 import io.github.anotherme17.commonrvadapter.listener.OnRvItemChildCheckedChangeListener;
 import io.github.anotherme17.commonrvadapter.listener.OnRvItemChildClickListener;
 import io.github.anotherme17.commonrvadapter.listener.OnRvItemChildLongClickListener;
+import io.github.anotherme17.commonrvadapter.listener.OnRvItemChildTouchListener;
 import io.github.anotherme17.commonrvadapter.listener.OnRvItemClickListener;
 import io.github.anotherme17.commonrvadapter.listener.OnRvItemLongClickListener;
 import retrofit2.Call;
@@ -51,6 +58,7 @@ public class RecyclerViewActivity extends AppCompatActivity {
     private RecyclerViewAdapter<NormalModel> mAdapter;
     private RecyclerView mDataRv;
     private ItemTouchHelper mItemTouchHelper;
+    private RvItemTouchHelper rvItemTouchHelper;
     private BGABanner mBanner;
 
     @Override
@@ -58,14 +66,33 @@ public class RecyclerViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_recyclerview);
         mDataRv = (RecyclerView) findViewById(R.id.rv_recyclerview_data);
-        //mAdapter = new RecyclerViewAdapter<>(mDataRv);
+        mAdapter = new RecyclerViewAdapter<>(mDataRv);
 
         /*=== Builder Model ===*/
-        mAdapter = new RecyclerViewAdapter.Builder<NormalModel>(mDataRv)
-                .addDelegate(new NormalDelegate())
+        /*mAdapter = new RecyclerViewAdapter.Builder<NormalModel>(mDataRv)
+                .addDelegate(new NormalDelegate())//添加条目
                 .addDelegate(new TextViewDelegate())
-                .setItemTouchHelper(mDataRv, Constants.SWIP_ENABLE
+                .addHeaderView(getBannerHeader())
+      *//*          .addHeaderView(new TextView(this))//添加头部View
+                .addFooterView(new TextView(this))//添加底部View*//*
+                .setItemTouchHelper(Constants.SWIP_ENABLE
                         | Constants.DRAG_ENABLE)
+                .setOnItemTouchCallBack(new RvItemTouchHelper.OnItemDragAndSwipeListener() {
+                    @Override
+                    public void onItemMove(RecyclerView recyclerView, RecyclerView.ViewHolder from, RecyclerView.ViewHolder to) {
+
+                    }
+
+                    @Override
+                    public void onItemMoved(RecyclerView recyclerView, RecyclerView.ViewHolder from, RecyclerView.ViewHolder to) {
+
+                    }
+
+                    @Override
+                    public void onItemSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+
+                    }
+                })
                 .setOnRVItemClickListener(new OnRvItemClickListener() {
                     @Override
                     public void onRvItemClick(ViewGroup parent, View itemView, int position) {
@@ -104,20 +131,16 @@ public class RecyclerViewActivity extends AppCompatActivity {
                         showSnackbar((isChecked ? "选中 " : "取消选中") + mAdapter.getItem(position).title);
                     }
                 })
-                /*.setOnRVItemChildTouchListener(new OnRvItemChildTouchListener() {
+                .setOnRVItemChildTouchListener(new OnRvItemChildTouchListener() {
                     @Override
                     public boolean onRvItemChilcTouch(RecyclerViewHolder viewHolder, View childView, MotionEvent event) {
-                        if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
-                            mItemTouchHelper.startDrag(viewHolder);
-                        }
-                        return false;
-                      *//*  Logger.i("TEST", "onRvItemChilcTouch");
-                        return true;*//*
-                    }
-                })*/
-                .attatchView(mDataRv);
 
-      /*  mAdapter.addDelegate(new NormalDelegate());
+                        return true;
+                    }
+                })
+                .attatchView(mDataRv);*/
+
+        mAdapter.addDelegate(new NormalDelegate());
         mAdapter.addDelegate(new TextViewDelegate());
         mAdapter.setOnRVItemClickListener(new OnRvItemClickListener() {
             @Override
@@ -161,18 +184,22 @@ public class RecyclerViewActivity extends AppCompatActivity {
             @Override
             public boolean onRvItemChilcTouch(RecyclerViewHolder viewHolder, View childView, MotionEvent event) {
                 if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
-                    mItemTouchHelper.startDrag(viewHolder);
+                    /*mItemTouchHelper.startDrag(viewHolder);*/
+                    rvItemTouchHelper.getItemTouchHelper().startDrag(viewHolder);
                 }
                 return false;
             }
-        });*/
+        });
 
         // 设置分割线
         mDataRv.addItemDecoration(new Divider(this));
 
 
         // 初始化拖拽排序和滑动删除
-      /*  mItemTouchHelper = new ItemTouchHelper(new ItemTouchHelperCallback());
+
+        rvItemTouchHelper = new RvItemTouchHelper(mAdapter);
+        rvItemTouchHelper.getItemTouchHelper().attachToRecyclerView(mDataRv);
+        /*mItemTouchHelper = new ItemTouchHelper(new ItemTouchHelperCallback());
         mItemTouchHelper.attachToRecyclerView(mDataRv);*/
 
 
@@ -186,9 +213,9 @@ public class RecyclerViewActivity extends AppCompatActivity {
 //        mDataRv.setAdapter(mAdapter);
 
         // 测试有 Header 或 Footer 的情况
-        //testHaveHeaderAndFooterAdapter();
+        testHaveHeaderAndFooterAdapter();
 
-        //loadBannerModels();
+        loadBannerModels();
         loadNormalModels();
     }
 
@@ -210,7 +237,7 @@ public class RecyclerViewActivity extends AppCompatActivity {
 
     private void testHaveHeaderAndFooterAdapter() {
         addBannerHeader();
-
+        Calendar calendar = Calendar.getInstance();
         TextView header1Tv = new TextView(this);
         header1Tv.setBackgroundColor(Color.parseColor("#E15B5A"));
         header1Tv.setTextColor(Color.WHITE);
@@ -280,6 +307,24 @@ public class RecyclerViewActivity extends AppCompatActivity {
         mAdapter.addHeaderView(headerView);
     }
 
+    private View getBannerHeader() {
+        View headerView = View.inflate(this, R.layout.layout_header_banner, null);
+        mBanner = (BGABanner) headerView.findViewById(R.id.banner);
+        mBanner.setAdapter(new BGABanner.Adapter() {
+            @Override
+            public void fillBannerItem(BGABanner banner, View view, Object model, int position) {
+                Glide.with(banner.getContext()).load(model).placeholder(R.drawable.holder_banner).error(R.drawable.holder_banner).dontAnimate().thumbnail(0.1f).into((ImageView) view);
+            }
+        });
+        mBanner.setOnItemClickListener(new BGABanner.OnItemClickListener() {
+            @Override
+            public void onBannerItemClick(BGABanner banner, View view, Object model, int position) {
+                showSnackbar("点击了第" + (position + 1) + "页");
+            }
+        });
+        return headerView;
+    }
+
     /**
      * 加载广告条数据
      */
@@ -322,13 +367,13 @@ public class RecyclerViewActivity extends AppCompatActivity {
     /**
      * 该类参考：https://github.com/iPaulPro/Android-ItemTouchHelper-Demo
      */
-   /* private class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
+    private class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
         public static final float ALPHA_FULL = 1.0f;
 
         @Override
         public boolean isLongPressDragEnabled() {
             //return true;
-            return false;
+            return true;
         }
 
         @Override
@@ -390,5 +435,5 @@ public class RecyclerViewActivity extends AppCompatActivity {
             ViewCompat.setAlpha(viewHolder.itemView, ALPHA_FULL);
             viewHolder.itemView.setSelected(false);
         }
-    }*/
+    }
 }

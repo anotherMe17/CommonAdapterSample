@@ -6,6 +6,8 @@ package io.github.anotherme17.commonrvadapter;
 
 public class Constants {
 
+    public static final int DEFAULT_MODEL = Constants.SWIP_ENABLE | Constants.DRAG_ENABLE;
+
     /*================ ItemTouchHelperCallback ================*/
 
     public static final int DRAG_ENABLE = 0x01;

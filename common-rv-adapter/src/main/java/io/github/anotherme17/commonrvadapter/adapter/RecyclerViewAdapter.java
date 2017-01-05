@@ -1,15 +1,10 @@
 package io.github.anotherme17.commonrvadapter.adapter;
 
 import android.content.Context;
-import android.graphics.Canvas;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
-import android.support.v4.view.MotionEventCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -18,7 +13,9 @@ import java.util.List;
 
 import io.github.anotherme17.commonrvadapter.Constants;
 import io.github.anotherme17.commonrvadapter.RvItemViewDelegate;
+import io.github.anotherme17.commonrvadapter.helper.RvItemTouchHelper;
 import io.github.anotherme17.commonrvadapter.holder.RecyclerViewHolder;
+import io.github.anotherme17.commonrvadapter.listener.OnItemDragCallback;
 import io.github.anotherme17.commonrvadapter.listener.OnRvItemChildCheckedChangeListener;
 import io.github.anotherme17.commonrvadapter.listener.OnRvItemChildClickListener;
 import io.github.anotherme17.commonrvadapter.listener.OnRvItemChildLongClickListener;
@@ -46,6 +43,9 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
     private RvHeadAndFootAdapter mHeadAndFootAdapter;
 
     private boolean mIsIgnoreCheckedChanged = true;
+
+    /*=== helper ===*/
+    private RvItemTouchHelper mRvItemTouchHelper = null;
 
     /*=== listener ===*/
     private OnRvItemChildCheckedChangeListener mOnRvItemChildCheckedChangeListener;
@@ -80,12 +80,17 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
         RvItemViewDelegate delegate = mDelegateManager.getDelegateByViewType(viewType);
         delegate.onViewHolderCreated(mContext, holder.getRvHolderHelper());
         delegate.setItemChildListener(holder.getRvHolderHelper(), viewType);
+
+        holder.getRvHolderHelper().setOnItemDragCallback(new OnItemDragCallback() {
+            @Override
+            public void setDragView(RecyclerViewHolder holder) {
+                if (mRvItemTouchHelper != null)
+                    mRvItemTouchHelper.getItemTouchHelper().startDrag(holder);
+            }
+        });
+
         return holder;
     }
-
-
- /*   protected void setItemChildListener(RvHolderHelper helper, int viewType) {
-    }*/
 
     @Override
     public void onBindViewHolder(RecyclerViewHolder holder, int position) {
@@ -96,9 +101,6 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
 
         mIsIgnoreCheckedChanged = false;
     }
-
-
-    /*public abstract void fillData(RvHolderHelper rvHolderHelper, int position, T item);*/
 
     @Override
     public int getItemViewType(int position) {
@@ -112,6 +114,24 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
 
     public boolean isIgnoreCheckedChanged() {
         return mIsIgnoreCheckedChanged;
+    }
+
+    public void setItemTouch(int model) {
+        if (mRvItemTouchHelper == null)
+            mRvItemTouchHelper = new RvItemTouchHelper(this);
+        mRvItemTouchHelper.setModel(model);
+        mRvItemTouchHelper.getItemTouchHelper().attachToRecyclerView(mRecyclerView);
+    }
+
+    public void setItemTouchListener(RvItemTouchHelper.OnItemDragAndSwipeListener onItemDragAndSwipeListener) {
+        if (mRvItemTouchHelper == null) {
+            setItemTouch(Constants.DEFAULT_MODEL);
+        }
+        mRvItemTouchHelper.setOnItemDragAndSwipeListener(onItemDragAndSwipeListener);
+    }
+
+    public RvItemTouchHelper getItemTouchHelper() {
+        return mRvItemTouchHelper;
     }
 
     /**
@@ -325,20 +345,18 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
     }
 
     /**
-     * 移动数据条目的位置。该方法在 ItemTouchHelper.Callback 的 onMove 方法中调用
+     * 移动数据条目的位置。该方法在 ItemTouchHelper.Callback 的 onMoved 方法中调用
      *
-     * @param from
-     * @param to
+     * @param fromHolder
+     * @param toHolder
      */
-    public void moveItem(RecyclerView.ViewHolder from, RecyclerView.ViewHolder to) {
-        int fromPosition = from.getAdapterPosition();
-        int toPosition = to.getAdapterPosition();
+    public void moveItem(RecyclerView.ViewHolder fromHolder, RecyclerView.ViewHolder toHolder) {
+        int fromPosition = fromHolder.getAdapterPosition();
+        int toPosition = toHolder.getAdapterPosition();
         if (mHeadAndFootAdapter != null) {
             mHeadAndFootAdapter.notifyItemChanged(fromPosition);
             mHeadAndFootAdapter.notifyItemChanged(toPosition);
-
             // 要先执行上面的 notifyItemChanged,然后再执行下面的 moveItem 操作
-
             mData.add(toPosition - mHeadAndFootAdapter.getHeadersCount(), mData.remove(fromPosition - mHeadAndFootAdapter.getHeadersCount()));
             mHeadAndFootAdapter.notifyItemMoved(fromPosition, toPosition);
         } else {
@@ -471,13 +489,15 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
         mDelegateManager.removeDelegate(itemLayoutId);
     }
 
-    /*=== Builder ===*/
+    /*================ Builder ================*/
 
     public static class Builder<T> {
         private final RecyclerViewAdapter<T> mAdapter;
+        private final RecyclerView mRecyclerView;
 
         public Builder(RecyclerView recyclerView) {
             mAdapter = new RecyclerViewAdapter<T>(recyclerView);
+            this.mRecyclerView = recyclerView;
         }
 
         public Builder<T> addDelegate(RvItemViewDelegate<T> delegate) {
@@ -487,6 +507,11 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
 
         public Builder<T> removeDelegate(RvItemViewDelegate<T> delegate) {
             mAdapter.removeDelegate(delegate);
+            return this;
+        }
+
+        public Builder<T> setData(List<T> data) {
+            mAdapter.setData(data);
             return this;
         }
 
@@ -500,28 +525,13 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
             return this;
         }
 
-        public Builder<T> setItemTouchHelper(RecyclerView recyclerView, int model) {
-
-            boolean isLongPressDragEnabled = (model & Constants.DRAG_ENABLE) != 0;
-            boolean isItemViewSwipeEnabled = (model & Constants.SWIP_ENABLE) != 0;
-            boolean isSameMove = (model & Constants.SAME_MOVE) != 0;
-
-            final ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelperCallback(isLongPressDragEnabled, isItemViewSwipeEnabled, isSameMove));
-            itemTouchHelper.attachToRecyclerView(recyclerView);
-            mAdapter.setOnRVItemChildTouchListener(new OnRvItemChildTouchListener() {
-                @Override
-                public boolean onRvItemChilcTouch(RecyclerViewHolder viewHolder, View childView, MotionEvent event) {
-                    if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN) {
-                        itemTouchHelper.startDrag(viewHolder);
-                    }
-                    return false;
-                }
-            });
+        public Builder<T> setItemTouchHelper(int model) {
+            mAdapter.setItemTouch(model);
             return this;
         }
 
-        public RecyclerViewAdapter<T> attatchView(RecyclerView recyclerView) {
-            recyclerView.setAdapter(mAdapter.getHeaderAndFooterAdapter());
+        public RecyclerViewAdapter<T> build() {
+            mRecyclerView.setAdapter(mAdapter.getHeaderAndFooterAdapter());
             return mAdapter;
         }
 
@@ -556,86 +566,9 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
             return this;
         }
 
-        public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
-
-            public static final float ALPHA_FULL = 1.0f;
-
-            private boolean isLongPressDragEnabled = false;
-            private boolean isItemViewSwipeEnabled = false;
-            private boolean isSameMove = false;
-
-            public ItemTouchHelperCallback(boolean isLongPressDragEnabled,
-                                           boolean isItemViewSwipeEnabled,
-                                           boolean isSameMove) {
-                this.isLongPressDragEnabled = isLongPressDragEnabled;
-                this.isItemViewSwipeEnabled = isItemViewSwipeEnabled;
-                this.isSameMove = isSameMove;
-            }
-
-            @Override
-            public boolean isLongPressDragEnabled() {
-                return isLongPressDragEnabled;
-            }
-
-            @Override
-            public boolean isItemViewSwipeEnabled() {
-                return isItemViewSwipeEnabled;
-            }
-
-            @Override
-            public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-                int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
-                int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
-
-                // 当加了 HeaderAndFooterAdapter 时需要加上下面的判断
-                if (mAdapter.isHeaderOrFooter(viewHolder)) {
-                    dragFlags = swipeFlags = ItemTouchHelper.ACTION_STATE_IDLE;
-                }
-
-                return makeMovementFlags(dragFlags, swipeFlags);
-            }
-
-            @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                if (isSameMove) {
-                    if (viewHolder.getItemViewType() != target.getItemViewType()) {
-                        return false;
-                    }
-                }
-
-                mAdapter.moveItem(viewHolder, target);
-                return true;
-            }
-
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                mAdapter.removeItem(viewHolder);
-            }
-
-            @Override
-            public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
-                    View itemView = viewHolder.itemView;
-                    float alpha = ALPHA_FULL - Math.abs(dX) / (float) itemView.getWidth();
-                    ViewCompat.setAlpha(viewHolder.itemView, alpha);
-                }
-            }
-
-            @Override
-            public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
-                if (actionState != ItemTouchHelper.ACTION_STATE_IDLE) {
-                    viewHolder.itemView.setSelected(true);
-                }
-                super.onSelectedChanged(viewHolder, actionState);
-            }
-
-            @Override
-            public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-                super.clearView(recyclerView, viewHolder);
-                ViewCompat.setAlpha(viewHolder.itemView, ALPHA_FULL);
-                viewHolder.itemView.setSelected(false);
-            }
+        public Builder<T> setOnItemTouchCallBack(RvItemTouchHelper.OnItemDragAndSwipeListener onItemDragAndSwipeListener) {
+            mAdapter.setItemTouchListener(onItemDragAndSwipeListener);
+            return this;
         }
     }
 }

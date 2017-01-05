@@ -73,8 +73,4 @@ public class RvDelegateManager<T> {
         return mDelegates.get(viewType);
     }
 
-/*    public RvItemViewDelegate getDelegateByPosition(int position) {
-        // TODO: 2016/12/29 通过Position返回delegate By user798
-        return null;
-    }*/
 }

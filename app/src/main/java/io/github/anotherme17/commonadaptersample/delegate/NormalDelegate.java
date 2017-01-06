@@ -39,7 +39,7 @@ public class NormalDelegate implements RvItemViewDelegate<NormalModel> {
         helper.setItemChildClickListener(R.id.tv_item_normal_delete);
         helper.setItemChildLongClickListener(R.id.tv_item_normal_delete);
         helper.setItemChildCheckedChangeListener(R.id.cb_item_normal_status);
-        helper.setOnItemChildTouchListener(R.id.iv_item_normal_avatar);
+        helper.setItemChildTouchListener(R.id.iv_item_normal_avatar);
     }
 
     @Override

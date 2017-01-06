@@ -153,7 +153,7 @@ public class RvHolderHelper implements View.OnLongClickListener, CompoundButton.
     /**
      * @param viewId
      */
-    public void setOnItemChildTouchListener(@IdRes int viewId) {
+    public void setItemChildTouchListener(@IdRes int viewId) {
         View view = getView(viewId);
         if (view != null) {
             view.setOnTouchListener(this);

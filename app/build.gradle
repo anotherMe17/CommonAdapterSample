@@ -40,4 +40,5 @@ dependencies {
     compile 'cn.bingoogolapple:bga-banner:2.1.0@aar'
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'com.android.support:design:23.2.0'
+    compile 'me.imid.swipebacklayout.lib:library:1.0.0'
 }

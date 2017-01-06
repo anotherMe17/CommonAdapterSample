@@ -34,7 +34,7 @@ public class TextViewDelegate implements RvItemViewDelegate<NormalModel> {
 
     @Override
     public void setItemChildListener(RvHolderHelper helper, int viewType) {
-        helper.setOnItemChildTouchListener(R.id.item1_btn);
+        helper.setItemChildTouchListener(R.id.item1_btn);
     }
 
     @Override

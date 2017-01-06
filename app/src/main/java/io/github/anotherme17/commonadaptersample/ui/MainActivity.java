@@ -28,11 +28,11 @@ public class MainActivity extends BaseActivity {
     RecyclerView mNormalRv;
 
     private int[] img = new int[]{R.mipmap.ic_launcher,
-            R.mipmap.ic_launcher,R.mipmap.ic_launcher,R.mipmap.ic_launcher};
+            R.mipmap.ic_launcher, R.mipmap.ic_launcher, R.mipmap.ic_launcher};
 
     private String[] txt = new String[]{"Normal\nRecyclerView", "ItemTouch", "3", "4"};
 
-    private Class[] mClasses = new Class[]{};
+    private Class[] mClasses = new Class[]{NormalRvActivity.class};
 
     private List<ActModel> mList = new ArrayList<>();
 
@@ -72,6 +72,7 @@ public class MainActivity extends BaseActivity {
     private void startActivity(Class aClass) {
         Intent intent = new Intent(MainActivity.this, aClass);
         startActivity(intent);
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
 
 }

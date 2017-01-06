@@ -22,6 +22,10 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ui.NormalRvActivity"
+            android:theme="@style/swipbackact"/>
+
         <activity android:name=".ui.RecyclerViewActivity">
 
         </activity>

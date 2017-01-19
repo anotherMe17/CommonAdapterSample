@@ -94,7 +94,7 @@ public class RvItemTouchHelper extends ItemTouchHelper.Callback {
         if (mOnItemDragAndSwipeListener != null) {
             mOnItemDragAndSwipeListener.onItemMove(recyclerView, viewHolder, target);
         }
-        mAdapter.moveItem(viewHolder, target);
+        mAdapter.onItemDragMoved(viewHolder, target);
         /*if (mOnItemDragAndSwipeListener != null) {
             mOnItemDragAndSwipeListener.onItemMoved(recyclerView, viewHolder, target);
         }*/

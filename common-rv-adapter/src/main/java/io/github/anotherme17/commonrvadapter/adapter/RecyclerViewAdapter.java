@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import io.github.anotherme17.commonrvadapter.Constants;
@@ -351,10 +352,26 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
      * @param fromHolder
      * @param toHolder
      */
-    public void moveItem(RecyclerView.ViewHolder fromHolder, RecyclerView.ViewHolder toHolder) {
+    public void onItemDragMoved(RecyclerView.ViewHolder fromHolder, RecyclerView.ViewHolder toHolder) {
         int fromPosition = fromHolder.getAdapterPosition();
         int toPosition = toHolder.getAdapterPosition();
-        if (mHeadAndFootAdapter != null) {
+
+        int tFrom = fromPosition - mHeadAndFootAdapter.getHeadersCount();
+        int tTo = toPosition - mHeadAndFootAdapter.getHeadersCount();
+
+        if (tFrom < tTo) {
+            for (int i = tFrom; i < tTo; i++) {
+                Collections.swap(mData, i, i + 1);
+            }
+        } else {
+            for (int i = tFrom; i > tTo; i--) {
+                Collections.swap(mData, i, i - 1);
+            }
+        }
+
+        mHeadAndFootAdapter.notifyItemMoved(fromPosition, toPosition);
+
+       /* if (mHeadAndFootAdapter != null) {
             mHeadAndFootAdapter.notifyItemChanged(fromPosition);
             mHeadAndFootAdapter.notifyItemChanged(toPosition);
             // 要先执行上面的 notifyItemChanged,然后再执行下面的 moveItem 操作
@@ -362,7 +379,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
             mHeadAndFootAdapter.notifyItemMoved(fromPosition, toPosition);
         } else {
             moveItem(fromPosition, toPosition);
-        }
+        }*/
     }
 
     /**

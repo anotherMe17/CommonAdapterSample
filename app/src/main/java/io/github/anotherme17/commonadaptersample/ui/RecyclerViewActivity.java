@@ -21,6 +21,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
 
 import java.util.Calendar;
 import java.util.List;
@@ -45,6 +47,7 @@ import io.github.anotherme17.commonrvadapter.listener.OnRvItemChildLongClickList
 import io.github.anotherme17.commonrvadapter.listener.OnRvItemChildTouchListener;
 import io.github.anotherme17.commonrvadapter.listener.OnRvItemClickListener;
 import io.github.anotherme17.commonrvadapter.listener.OnRvItemLongClickListener;
+import okhttp3.Cookie;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -295,7 +298,13 @@ public class RecyclerViewActivity extends AppCompatActivity {
         mBanner.setAdapter(new BGABanner.Adapter() {
             @Override
             public void fillBannerItem(BGABanner banner, View view, Object model, int position) {
-                Glide.with(banner.getContext()).load(model).placeholder(R.drawable.holder_banner).error(R.drawable.holder_banner).dontAnimate().thumbnail(0.1f).into((ImageView) view);
+                Cookie cookie=new  Cookie.Builder().name("AJSTAT_ok_pages")
+                        .value("25").expiresAt(1514903128).domain("www.66bb.org").path("/").build();
+                GlideUrl glideUrl = new GlideUrl("http://p.66bb.org/tu/allimg/2016-06/06204H0-1-2bS-lp.jpg", new LazyHeaders.Builder()
+                        .addHeader("Cookie", cookie.toString())
+                        .build());
+
+                Glide.with(banner.getContext()).load(glideUrl).placeholder(R.drawable.holder_banner).error(R.drawable.holder_banner).dontAnimate().thumbnail(0.1f).into((ImageView) view);
             }
         });
         mBanner.setOnItemClickListener(new BGABanner.OnItemClickListener() {

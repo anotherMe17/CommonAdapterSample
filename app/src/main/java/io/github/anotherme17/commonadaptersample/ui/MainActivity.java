@@ -27,8 +27,8 @@ public class MainActivity extends BaseActivity {
     @Bind(R.id.normal_rv)
     RecyclerView mNormalRv;
 
-    private int[] img = new int[]{R.mipmap.ic_launcher,
-            R.mipmap.ic_launcher, R.mipmap.ic_launcher, R.mipmap.ic_launcher};
+    private int[] img = new int[]{R.drawable.logo,
+            R.drawable.logo, R.drawable.logo, R.drawable.logo};
 
     private String[] txt = new String[]{"Normal\nRecyclerView", "ItemTouch", "3", "4"};
 

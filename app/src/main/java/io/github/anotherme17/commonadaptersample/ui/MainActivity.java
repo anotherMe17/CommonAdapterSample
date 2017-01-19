@@ -32,7 +32,7 @@ public class MainActivity extends BaseActivity {
 
     private String[] txt = new String[]{"Normal\nRecyclerView", "ItemTouch", "3", "4"};
 
-    private Class[] mClasses = new Class[]{NormalRvActivity.class};
+    private Class[] mClasses = new Class[]{NormalRvActivity.class,ItemTouchActivity.class};
 
     private List<ActModel> mList = new ArrayList<>();
 

@@ -9,6 +9,8 @@ RecycleView的万能适配器
   * [Maven](#maven)
   * [Gradle](#gradle)
   * [lvy](#lvy)
+* [使用方法](#使用方法)
+	
 * [Thanks](#thanks)
 * [Copyright](#copyright)
 
@@ -26,56 +28,9 @@ RecycleView的万能适配器
 `provided 'com.android.support:recyclerview-v7:23.2.0'`  
 - [x] 创建时可使用构造者模式  
     
+##使用方法
+详细的使用方法请参考demo  
 
-```java
-RecyclerViewAdapter<NormalModel> mAdapter;      
-RecyclerView mDataRv;
- mAdapter = new RecyclerViewAdapter.Builder<NormalModel>(mDataRv)
-               	.addDelegate(new NormalDelegate())//添加条目
-                .addDelegate(new TextViewDelegate())
-                .addHeaderView(new TextView(this))//添加头部View
-                .addFooterView(new TextView(this))//添加底部View
-                .setOnRVItemClickListener(new OnRvItemClickListener() {
-                    @Override
-                    public void onRvItemClick(ViewGroup parent, View itemView, int position) {
-                        //
-                    }
-                })
-                .setOnRVItemLongClickListener(new OnRvItemLongClickListener() {
-                    @Override
-                    public boolean onRvItemLongClick(ViewGroup parent, View itemView, int position) {
-                        //
-                        return false;
-                    }
-                })
-                .setOnItemChildClickListener(new OnRvItemChildClickListener() {
-                    @Override
-                    public void onRvItemChildClick(ViewGroup parent, View childView, int position) {
-                        //
-                    }
-                })
-                .setOnItemChildLongClickListener(new OnRvItemChildLongClickListener() {
-                    @Override
-                    public boolean onRvItemChildLongClick(ViewGroup parent, View childView, int position) {
-                       	//
-                        return false;
-                    }
-                })
-                .setOnItemChildCheckedChangeListener(new OnRvItemChildCheckedChangeListener() {
-                    @Override
-                    public void onRvItemChildCheckedChanged(ViewGroup parent, CompoundButton childView, int position, boolean isChecked) {
-                        //
-                    }
-                })
-				.setOnRVItemChildTouchListener(new OnRvItemChildTouchListener() {
-                    @Override
-                    public boolean onRvItemChilcTouch(RecyclerViewHolder viewHolder, View childView, MotionEvent event) {
-                        //
-                        return false;
-                    }
-                })
-				.attatchView(mDataRv);
-```
 ##导入项目
 <b id="maven"/>
 ###Maven
@@ -106,7 +61,7 @@ RecyclerView mDataRv;
 <b id="copyright"/>
 ##Copyright
 ```
-	Copyright {2017} {lirenhao}
+	Copyright {2017} 李仁豪
 
    	Licensed under the Apache License, Version 2.0 (the "License");
    	you may not use this file except in compliance with the License.

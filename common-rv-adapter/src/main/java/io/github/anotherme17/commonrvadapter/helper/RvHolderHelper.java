@@ -187,10 +187,13 @@ public class RvHolderHelper implements View.OnLongClickListener, CompoundButton.
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        if (mRecyclerView != null && mOnRvItemChildTouchListener != null) {
+        if (mRecyclerView != null) {
             if (mOnItemDragCallback != null && MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN)
                 mOnItemDragCallback.setDragView(mHolder);
-            return mOnRvItemChildTouchListener.onRvItemChilcTouch(mHolder, v, event);
+            if (mOnRvItemChildTouchListener != null)
+                return mOnRvItemChildTouchListener.onRvItemChilcTouch(mHolder, v, event);
+            else
+                return false;
         }
         return false;
     }

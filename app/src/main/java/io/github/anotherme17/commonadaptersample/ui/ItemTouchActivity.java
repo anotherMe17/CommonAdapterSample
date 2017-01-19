@@ -12,10 +12,8 @@ import java.util.List;
 import butterknife.Bind;
 import io.github.anotherme17.commonadaptersample.R;
 import io.github.anotherme17.commonadaptersample.base.BaseActivity;
-import io.github.anotherme17.commonadaptersample.delegate.ItemTouchDelegate;
 import io.github.anotherme17.commonadaptersample.model.ItemTouchModel;
 import io.github.anotherme17.commonadaptersample.ui.widget.Divider;
-import io.github.anotherme17.commonrvadapter.Constants;
 import io.github.anotherme17.commonrvadapter.adapter.RecyclerViewAdapter;
 
 /**
@@ -52,11 +50,11 @@ public class ItemTouchActivity extends BaseActivity {
 
         mDatas = getData();
 
-        mAdapter = new RecyclerViewAdapter.Builder<ItemTouchModel>(mRv)
+       /* mAdapter = new RecyclerViewAdapter.Builder<ItemTouchModel>(mRv)
                 .addDelegate(new ItemTouchDelegate())
                 .setData(mDatas)
                 .setItemTouchHelper(Constants.SWIP_ENABLE | Constants.DRAG_ENABLE)
-                .build();
+                .build();*/
     }
 
     private List<ItemTouchModel> getData() {

@@ -1,10 +1,8 @@
 package io.github.anotherme17.commonrvadapter.helper;
 
 import android.graphics.Canvas;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.view.View;
 
 import io.github.anotherme17.commonrvadapter.Constants;
 import io.github.anotherme17.commonrvadapter.adapter.RecyclerViewAdapter;
@@ -82,10 +80,10 @@ public class RvItemTouchHelper extends ItemTouchHelper.Callback {
         }
         if (mAdapter.isHeaderOrFooter(viewHolder) || mAdapter.isHeaderOrFooter(target))
             return false;
-        if (mOnItemDragAndSwipeListener != null) {
+       /* if (mOnItemDragAndSwipeListener != null) {
             mOnItemDragAndSwipeListener.onItemMove(recyclerView, viewHolder, target);
         }
-        mAdapter.moveItem(viewHolder, target);
+        mAdapter.moveItem(viewHolder, target);*/
         return true;
     }
 
@@ -94,8 +92,12 @@ public class RvItemTouchHelper extends ItemTouchHelper.Callback {
         super.onMoved(recyclerView, viewHolder, fromPos, target, toPos, x, y);
 
         if (mOnItemDragAndSwipeListener != null) {
-            mOnItemDragAndSwipeListener.onItemMoved(recyclerView, viewHolder, target);
+            mOnItemDragAndSwipeListener.onItemMove(recyclerView, viewHolder, target);
         }
+        mAdapter.moveItem(viewHolder, target);
+        /*if (mOnItemDragAndSwipeListener != null) {
+            mOnItemDragAndSwipeListener.onItemMoved(recyclerView, viewHolder, target);
+        }*/
 
     }
 
@@ -110,18 +112,18 @@ public class RvItemTouchHelper extends ItemTouchHelper.Callback {
     @Override
     public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-        if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+       /* if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
             View itemView = viewHolder.itemView;
             float alpha = ALPHA_FULL - Math.abs(dX) / (float) itemView.getWidth();
             ViewCompat.setAlpha(viewHolder.itemView, alpha);
-        }
+        }*/
     }
 
     @Override
     public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
         super.clearView(recyclerView, viewHolder);
-        ViewCompat.setAlpha(viewHolder.itemView, ALPHA_FULL);
-        viewHolder.itemView.setSelected(false);
+       /* ViewCompat.setAlpha(viewHolder.itemView, ALPHA_FULL);
+        viewHolder.itemView.setSelected(false);*/
     }
 
     public ItemTouchHelper getItemTouchHelper() {

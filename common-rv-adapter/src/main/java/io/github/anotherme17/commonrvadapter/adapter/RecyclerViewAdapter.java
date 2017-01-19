@@ -13,6 +13,7 @@ import java.util.List;
 
 import io.github.anotherme17.commonrvadapter.Constants;
 import io.github.anotherme17.commonrvadapter.RvItemViewDelegate;
+import io.github.anotherme17.commonrvadapter.helper.BaseItemTouchHelper;
 import io.github.anotherme17.commonrvadapter.helper.RvItemTouchHelper;
 import io.github.anotherme17.commonrvadapter.holder.RecyclerViewHolder;
 import io.github.anotherme17.commonrvadapter.listener.OnItemDragCallback;
@@ -525,8 +526,37 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
             return this;
         }
 
-        public Builder<T> setItemTouchHelper(int model) {
+        /**
+         * <P>设置是否允许ItemTouch</P>
+         * <P>可以通过 @link Builder#setItemTouchMode(int)} 设置ItemTouch的类型</P>
+         * <P>可以通过 {@link Builder#setItemTouchHelper(BaseItemTouchHelper)} 设置拓展ItemTouch的Help类</P>
+         *
+         * @param enable true-false
+         */
+        public Builder<T> setItemTouchEnable(boolean enable) {
+            return this;
+        }
+
+        /**
+         * <P> 设置ItemTouch的类型</P>
+         * <P> 使用前必须先设置 {@link Builder#setItemTouchEnable(boolean)}</P>
+         * <P>可以通过{@link Builder#setItemTouchHelper(BaseItemTouchHelper)} 设置拓展ItemTouch的Help类</P>
+         *
+         * @param model ItemTouch的模式
+         */
+        public Builder<T> setItemTouchMode(int model) {
             mAdapter.setItemTouch(model);
+            return this;
+        }
+
+        /**
+         * <P>设置拓展ItemTouch的Help类</P>
+         * <P>使用前必须先设置 {@link Builder#setItemTouchEnable(boolean)} 为true </P>
+         * <P>可以通过 {@link Builder#setItemTouchMode(int)} 设置ItemTouch的类型 默认为 BaseItemHelper.DEFAULT_MODEL</P>
+         *
+         * @param itemTouchHelper itemtouch的help类  继承自{@linkplain BaseItemTouchHelper}
+         */
+        public Builder<T> setItemTouchHelper(BaseItemTouchHelper itemTouchHelper) {
             return this;
         }
 

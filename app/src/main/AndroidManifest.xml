@@ -28,6 +28,9 @@
         <activity
             android:name=".ui.ItemTouchActivity"
             android:theme="@style/swipbackact"/>
+        <activity
+            android:name=".ui.EmptyActivity"
+            android:theme="@style/swipbackact"/>
 
     </application>
 

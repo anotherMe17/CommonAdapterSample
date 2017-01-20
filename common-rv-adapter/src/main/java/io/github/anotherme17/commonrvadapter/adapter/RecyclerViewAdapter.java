@@ -3,15 +3,19 @@ package io.github.anotherme17.commonrvadapter.adapter;
 import android.content.Context;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.github.anotherme17.commonrvadapter.R;
 import io.github.anotherme17.commonrvadapter.RvItemViewDelegate;
 import io.github.anotherme17.commonrvadapter.helper.BaseItemTouchHelper;
 import io.github.anotherme17.commonrvadapter.holder.RecyclerViewHolder;
@@ -47,6 +51,9 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
     private boolean mIsIgnoreCheckedChanged = true;
 
     protected boolean enableDragAndSwip = false;
+    /*=== empty ===*/
+    private boolean ifShowEmptyView = false;
+    private FrameLayout mEmptyLayout;
 
     /*=== helper ===*/
     private BaseItemTouchHelper mTouchHelper = null;
@@ -73,13 +80,15 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
 
     @Override
     public RecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if (viewType == R.id.RvEmptyView_Type_Id)
+            return new RecyclerViewHolder(mEmptyLayout);
+
         RecyclerViewHolder holder = new RecyclerViewHolder(LayoutInflater.from(mContext).inflate(viewType, parent, false),
                 mRecyclerView, this, mOnRvItemClickListener, mOnRvItemLongClickListener);
         holder.getRvHolderHelper().setOnItemChildCheckedChangeListener(mOnRvItemChildCheckedChangeListener);
         holder.getRvHolderHelper().setOnItemChildClickListener(mOnRvItemChildClickListener);
         holder.getRvHolderHelper().setOnItemChildLongClickListener(mOnRvItemChildLongClickListener);
         holder.getRvHolderHelper().setOnItemChildTouchListener(mOnRvItemChildTouchListener);
-        //setItemChildListener(holder.getRvHolderHelper(), viewType);
 
         RvItemViewDelegate delegate = mDelegateManager.getDelegateByViewType(viewType);
         delegate.onViewHolderCreated(mContext, holder.getRvHolderHelper());
@@ -98,26 +107,120 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
 
     @Override
     public void onBindViewHolder(RecyclerViewHolder holder, int position) {
+        if (holder.getItemViewType() == R.id.RvEmptyView_Type_Id)
+            return;
+
         // 在设置值的过程中忽略选中状态变化
         mIsIgnoreCheckedChanged = true;
-        //fillData(holder.getRvHolderHelper(), position, getItem(position));
+
         mDelegateManager.getDelegateByViewType(holder.getItemViewType()).convert(mContext, holder.getRvHolderHelper(), position, getItem(position));
 
         mIsIgnoreCheckedChanged = false;
     }
 
     @Override
+    public void onViewAttachedToWindow(RecyclerViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        int type = holder.getItemViewType();
+        if (type == R.id.RvEmptyView_Type_Id) {
+            setFullSpan(holder);
+        }
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+        if (layoutManager instanceof GridLayoutManager) {
+            final GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
+            final GridLayoutManager.SpanSizeLookup spanSizeLookup = gridLayoutManager.getSpanSizeLookup();
+
+            gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                @Override
+                public int getSpanSize(int position) {
+                    int viewType = getItemViewType(position);
+                    if (viewType == R.id.RvEmptyView_Type_Id)
+                        return gridLayoutManager.getSpanCount();
+                    if (spanSizeLookup != null) {
+                        return spanSizeLookup.getSpanSize(position - getHeadersCount());
+                    }
+                    return 1;
+                }
+            });
+        }
+    }
+
+    /**
+     * When set to true, the item will layout using all span area. That means, if orientation
+     * is vertical, the view will have full width; if orientation is horizontal, the view will
+     * have full height.
+     * if the hold view use StaggeredGridLayoutManager they should using all span area
+     *
+     * @param holder True if this item should traverse all spans.
+     */
+    protected void setFullSpan(RecyclerView.ViewHolder holder) {
+        if (holder.itemView.getLayoutParams() instanceof StaggeredGridLayoutManager.LayoutParams) {
+            StaggeredGridLayoutManager.LayoutParams params = (StaggeredGridLayoutManager.LayoutParams) holder.itemView.getLayoutParams();
+            params.setFullSpan(true);
+        }
+    }
+
+    @Override
     public int getItemViewType(int position) {
+        if (getEmptyViewCount() == 1)
+            return R.id.RvEmptyView_Type_Id;
         return mDefaultItemId == 0 ? mDelegateManager.getItemViewType(position, mData.get(position)) : mDefaultItemId;
     }
 
     @Override
     public int getItemCount() {
-        return mData.size();
+        return getEmptyViewCount() == 1 ? 1 : mData.size();
+    }
+
+    /**
+     * if show empty view will be return 1 or not will be return 0
+     *
+     * @return if show empty view will be return 1 or not will be return 0
+     */
+    public int getEmptyViewCount() {
+        if (mEmptyLayout == null || mEmptyLayout.getChildCount() == 0)
+            return 0;
+        if (!ifShowEmptyView)
+            return 0;
+        if (mData.size() != 0)
+            return 0;
+        return 1;
     }
 
     public boolean isIgnoreCheckedChanged() {
         return mIsIgnoreCheckedChanged;
+    }
+
+    public void setIfShowEmptyView(boolean showEmptyView) {
+        ifShowEmptyView = showEmptyView;
+    }
+
+    public void setEmptyView(View emptyView) {
+        boolean insert = false;
+        if (mEmptyLayout == null) {
+            mEmptyLayout = new FrameLayout(emptyView.getContext());
+            final RecyclerView.LayoutParams layoutParams = new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.MATCH_PARENT);
+            final ViewGroup.LayoutParams lp = emptyView.getLayoutParams();
+            if (lp != null) {
+                layoutParams.width = lp.width;
+                layoutParams.height = lp.height;
+            }
+            mEmptyLayout.setLayoutParams(layoutParams);
+            insert = true;
+        }
+        mEmptyLayout.removeAllViews();
+        mEmptyLayout.addView(emptyView);
+        ifShowEmptyView = true;
+        if (insert) {
+            if (getEmptyViewCount() == 1) {
+                notifyItemInserted(0);
+            }
+        }
     }
 
     /**
@@ -658,6 +761,16 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
          */
         public Builder<T> setItemTouchHelper(BaseItemTouchHelper itemTouchHelper) {
             mAdapter.setItemTouchHelper(itemTouchHelper);
+            return this;
+        }
+
+        /**
+         * 设置一个EmptyView
+         *
+         * @param emptyView EmptyView
+         */
+        public Builder<T> setEmptyView(View emptyView) {
+            mAdapter.setEmptyView(emptyView);
             return this;
         }
 

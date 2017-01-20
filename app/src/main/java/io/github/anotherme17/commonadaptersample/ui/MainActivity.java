@@ -30,9 +30,9 @@ public class MainActivity extends BaseActivity {
     private int[] img = new int[]{R.drawable.logo,
             R.drawable.logo, R.drawable.logo, R.drawable.logo};
 
-    private String[] txt = new String[]{"Normal\nRecyclerView", "ItemTouch", "3", "4"};
+    private String[] txt = new String[]{"Normal\nRecyclerView", "ItemTouch", "EmptyView", "HeadAndFootView"};
 
-    private Class[] mClasses = new Class[]{NormalRvActivity.class,ItemTouchActivity.class};
+    private Class[] mClasses = new Class[]{NormalRvActivity.class, ItemTouchActivity.class, EmptyActivity.class};
 
     private List<ActModel> mList = new ArrayList<>();
 

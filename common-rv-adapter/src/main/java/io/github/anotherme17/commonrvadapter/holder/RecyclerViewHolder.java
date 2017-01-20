@@ -1,6 +1,5 @@
 package io.github.anotherme17.commonrvadapter.holder;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
@@ -16,8 +15,6 @@ import io.github.anotherme17.commonrvadapter.listener.OnRvItemLongClickListener;
 
 public class RecyclerViewHolder extends RecyclerView.ViewHolder {
 
-    private Context mContext;
-
     private RecyclerView mRecyclerView;
 
     private RecyclerViewAdapter mAdapter;
@@ -28,6 +25,9 @@ public class RecyclerViewHolder extends RecyclerView.ViewHolder {
     private OnRvItemClickListener mOnRvItemClickListener;
     private OnRvItemLongClickListener mOnRvItemLongClickListener;
 
+    public RecyclerViewHolder(View emptyView) {
+        super(emptyView);
+    }
 
     public RecyclerViewHolder(View itemView, RecyclerView recyclerView,
                               RecyclerViewAdapter recyclerViewAdapter,
@@ -39,8 +39,6 @@ public class RecyclerViewHolder extends RecyclerView.ViewHolder {
         this.mAdapter = recyclerViewAdapter;
         this.mOnRvItemClickListener = onRvItemClickListener;
         this.mOnRvItemLongClickListener = onRvItemLongClickListener;
-
-        mContext = mRecyclerView.getContext();
 
         /*=== init helper ===*/
         mHelper = new RvHolderHelper(mRecyclerView, this);

@@ -153,12 +153,13 @@ public class RvHolderHelper implements View.OnLongClickListener, CompoundButton.
     /**
      * @param viewId
      */
-    public void setItemChildTouchListener(@IdRes int viewId) {
+    public void attacthTouchListener(@IdRes int viewId) {
         View view = getView(viewId);
         if (view != null) {
             view.setOnTouchListener(this);
         }
     }
+
 
     /**
      * 设置Item子控件的状态改变监听事件
@@ -190,10 +191,8 @@ public class RvHolderHelper implements View.OnLongClickListener, CompoundButton.
         if (mRecyclerView != null) {
             if (mOnItemDragCallback != null && MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN)
                 mOnItemDragCallback.setDragView(mHolder);
-            if (mOnRvItemChildTouchListener != null)
-                return mOnRvItemChildTouchListener.onRvItemChilcTouch(mHolder, v, event);
-            else
-                return false;
+
+            return mOnRvItemChildTouchListener != null && mOnRvItemChildTouchListener.onRvItemChilcTouch(mHolder, v, event);
         }
         return false;
     }

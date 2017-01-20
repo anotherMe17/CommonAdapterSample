@@ -29,9 +29,6 @@
             android:name=".ui.ItemTouchActivity"
             android:theme="@style/swipbackact"/>
 
-        <activity android:name=".ui.RecyclerViewActivity">
-
-        </activity>
     </application>
 
 </manifest>

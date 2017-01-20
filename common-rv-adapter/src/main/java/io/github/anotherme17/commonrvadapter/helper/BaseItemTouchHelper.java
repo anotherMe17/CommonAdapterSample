@@ -3,7 +3,6 @@ package io.github.anotherme17.commonrvadapter.helper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 
-import io.github.anotherme17.commonrvadapter.Constants;
 import io.github.anotherme17.commonrvadapter.adapter.RecyclerViewAdapter;
 
 
@@ -11,13 +10,11 @@ import io.github.anotherme17.commonrvadapter.adapter.RecyclerViewAdapter;
  * ItemTouch的帮助类
  *
  * @author anotherme17
+ * @version 1.0.0
  */
 public class BaseItemTouchHelper extends ItemTouchHelper.Callback {
     /*================ final 参数================*/
-    /**
-     * 默认的ItemTouch模式
-     */
-    public static final int DEFAULT_MODEL = Constants.SWIP_ENABLE | Constants.DRAG_ENABLE;
+
     /**
      * 允许拖动
      */
@@ -31,6 +28,10 @@ public class BaseItemTouchHelper extends ItemTouchHelper.Callback {
      */
     public static final int SAME_MOVE = 0x04;
 
+    /**
+     * 默认的ItemTouch模式
+     */
+    public static final int DEFAULT_MODEL = SWIP_ENABLE | DRAG_ENABLE;
     /*================ 默认的拖动和滑动的参数 ================*/
     protected int defaultDragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
     protected int defaultSwipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
@@ -60,12 +61,15 @@ public class BaseItemTouchHelper extends ItemTouchHelper.Callback {
 
     /*================================ 分界线 ================================*/
 
-    public BaseItemTouchHelper(RecyclerViewAdapter adapter) {
-        this.mAdapter = adapter;
+    public BaseItemTouchHelper() {
         mItemTouchHelper = new ItemTouchHelper(this);
     }
 
-    protected void setItemTouchMode(int model) {
+    public void setRvAdapter(RecyclerViewAdapter adapter) {
+        this.mAdapter = adapter;
+    }
+
+    public void setItemTouchMode(int model) {
         isLongPressDragEnabled = (model & DRAG_ENABLE) != 0;
         isItemViewSwipeEnabled = (model & SWIP_ENABLE) != 0;
         isSameMove = (model & SAME_MOVE) != 0;
@@ -119,10 +123,10 @@ public class BaseItemTouchHelper extends ItemTouchHelper.Callback {
     public void onMoved(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, int fromPos, RecyclerView.ViewHolder target, int toPos, int x, int y) {
         super.onMoved(recyclerView, viewHolder, fromPos, target, toPos, x, y);
 
-        mAdapter.onItemDragMoved(viewHolder, target);
+        mAdapter.itemMoved(target, viewHolder);
 
-        if (mItemTouchHelper != null)
-            mOnItemDragListener.onItemMoved(recyclerView, viewHolder, target);
+        if (mOnItemDragListener != null)
+            mOnItemDragListener.onItemMoved(recyclerView, target, viewHolder);
     }
 
     @Override
@@ -133,16 +137,24 @@ public class BaseItemTouchHelper extends ItemTouchHelper.Callback {
             mOnItemSwipedListener.onItemSwiped(viewHolder, direction);
     }
 
-    protected void attacth2RecycleView(RecyclerView recyclerView) {
+    public void attacth2RecycleView(RecyclerView recyclerView) {
         mItemTouchHelper.attachToRecyclerView(recyclerView);
     }
 
-    protected void startDrag(RecyclerView.ViewHolder holder) {
+    public void startDrag(RecyclerView.ViewHolder holder) {
         mItemTouchHelper.startDrag(holder);
     }
 
-    protected void startSwiped(RecyclerView.ViewHolder holder) {
+    public void startSwiped(RecyclerView.ViewHolder holder) {
         mItemTouchHelper.startSwipe(holder);
+    }
+
+    public void setDragFlag(int flag) {
+        defaultDragFlags = flag;
+    }
+
+    public void setSwipedFlag(int flag) {
+        defaultSwipeFlags = flag;
     }
 
     /*========== listener ==========*/

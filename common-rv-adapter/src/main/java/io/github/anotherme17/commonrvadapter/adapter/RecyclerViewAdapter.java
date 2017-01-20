@@ -12,10 +12,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import io.github.anotherme17.commonrvadapter.Constants;
 import io.github.anotherme17.commonrvadapter.RvItemViewDelegate;
 import io.github.anotherme17.commonrvadapter.helper.BaseItemTouchHelper;
-import io.github.anotherme17.commonrvadapter.helper.RvItemTouchHelper;
 import io.github.anotherme17.commonrvadapter.holder.RecyclerViewHolder;
 import io.github.anotherme17.commonrvadapter.listener.OnItemDragCallback;
 import io.github.anotherme17.commonrvadapter.listener.OnRvItemChildCheckedChangeListener;
@@ -27,9 +25,11 @@ import io.github.anotherme17.commonrvadapter.listener.OnRvItemLongClickListener;
 import io.github.anotherme17.commonrvadapter.manager.RvDelegateManager;
 
 /**
- * Created by user798 on 2016/12/28.
+ * 万能RecyclerView的适配器
+ *
+ * @author anotherme17
+ * @version 1.0.0
  */
-
 public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHolder> {
 
     private int mDefaultItemId = 0;
@@ -46,8 +46,10 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
 
     private boolean mIsIgnoreCheckedChanged = true;
 
+    protected boolean enableDragAndSwip = false;
+
     /*=== helper ===*/
-    private RvItemTouchHelper mRvItemTouchHelper = null;
+    private BaseItemTouchHelper mTouchHelper = null;
 
     /*=== listener ===*/
     private OnRvItemChildCheckedChangeListener mOnRvItemChildCheckedChangeListener;
@@ -86,8 +88,8 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
         holder.getRvHolderHelper().setOnItemDragCallback(new OnItemDragCallback() {
             @Override
             public void setDragView(RecyclerViewHolder holder) {
-                if (mRvItemTouchHelper != null)
-                    mRvItemTouchHelper.getItemTouchHelper().startDrag(holder);
+                if (mTouchHelper != null && enableDragAndSwip)
+                    mTouchHelper.startDrag(holder);
             }
         });
 
@@ -118,23 +120,66 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
         return mIsIgnoreCheckedChanged;
     }
 
-    public void setItemTouch(int model) {
-        if (mRvItemTouchHelper == null)
-            mRvItemTouchHelper = new RvItemTouchHelper(this);
-        mRvItemTouchHelper.setModel(model);
-        mRvItemTouchHelper.getItemTouchHelper().attachToRecyclerView(mRecyclerView);
-    }
-
-    public void setItemTouchListener(RvItemTouchHelper.OnItemDragAndSwipeListener onItemDragAndSwipeListener) {
-        if (mRvItemTouchHelper == null) {
-            setItemTouch(Constants.DEFAULT_MODEL);
+    /**
+     * 详情请见 {@link Builder#setItemTouchEnable(boolean)}
+     *
+     * @param enable
+     */
+    public void setItemTouchEnable(boolean enable) {
+        if (mTouchHelper == null) {
+            mTouchHelper = new BaseItemTouchHelper();
+            mTouchHelper.setRvAdapter(this);
         }
-        mRvItemTouchHelper.setOnItemDragAndSwipeListener(onItemDragAndSwipeListener);
+
+        enableDragAndSwip = enable;
+        mTouchHelper.attacth2RecycleView(enable ? mRecyclerView : null);
     }
 
-    public RvItemTouchHelper getItemTouchHelper() {
-        return mRvItemTouchHelper;
+    /**
+     * 详情请见 {@link Builder#setItemTouchModel(int)}
+     *
+     * @param model
+     */
+    public void setItemTouchModel(int model) {
+        if (mTouchHelper == null)
+            throw new IllegalArgumentException("please use setItemTouchEnable(true) to create BaseItemTouchHelper first");
+        mTouchHelper.setItemTouchMode(model);
     }
+
+    public void setItemTouchDragFlag(int flag) {
+        if (mTouchHelper == null)
+            throw new IllegalArgumentException("please use setItemTouchEnable(true) to create BaseItemTouchHelper first");
+        mTouchHelper.setDragFlag(flag);
+    }
+
+    public void setItemTouchSwipedFlag(int flag) {
+        if (mTouchHelper == null)
+            throw new IllegalArgumentException("please use setItemTouchEnable(true) to create BaseItemTouchHelper first");
+        mTouchHelper.setSwipedFlag(flag);
+    }
+
+    /**
+     * 详情请见 {@link Builder#setItemTouchHelper(BaseItemTouchHelper)}
+     *
+     * @param itemTouchHelper
+     */
+    public void setItemTouchHelper(BaseItemTouchHelper itemTouchHelper) {
+        mTouchHelper = itemTouchHelper;
+        mTouchHelper.setRvAdapter(this);
+    }
+
+    public void setItemDragListener(BaseItemTouchHelper.OnItemDragListener listener) {
+        if (mTouchHelper == null)
+            throw new IllegalArgumentException("please use setItemTouchEnable(true) to create BaseItemTouchHelper first");
+        mTouchHelper.setOnItemDragListener(listener);
+    }
+
+    public void setItemSwipeListener(BaseItemTouchHelper.OnItemSwipedListener listener) {
+        if (mTouchHelper == null)
+            throw new IllegalArgumentException("please use setItemTouchEnable(true) to create BaseItemTouchHelper first");
+        mTouchHelper.setOnItemSwipedListener(listener);
+    }
+
 
     /**
      * 获取指定索引位置的数据模型
@@ -352,7 +397,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
      * @param fromHolder
      * @param toHolder
      */
-    public void onItemDragMoved(RecyclerView.ViewHolder fromHolder, RecyclerView.ViewHolder toHolder) {
+    public void itemMoved(RecyclerView.ViewHolder fromHolder, RecyclerView.ViewHolder toHolder) {
         int fromPosition = fromHolder.getAdapterPosition();
         int toPosition = toHolder.getAdapterPosition();
 
@@ -370,16 +415,6 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
         }
 
         mHeadAndFootAdapter.notifyItemMoved(fromPosition, toPosition);
-
-       /* if (mHeadAndFootAdapter != null) {
-            mHeadAndFootAdapter.notifyItemChanged(fromPosition);
-            mHeadAndFootAdapter.notifyItemChanged(toPosition);
-            // 要先执行上面的 notifyItemChanged,然后再执行下面的 moveItem 操作
-            mData.add(toPosition - mHeadAndFootAdapter.getHeadersCount(), mData.remove(fromPosition - mHeadAndFootAdapter.getHeadersCount()));
-            mHeadAndFootAdapter.notifyItemMoved(fromPosition, toPosition);
-        } else {
-            moveItem(fromPosition, toPosition);
-        }*/
     }
 
     /**
@@ -518,6 +553,11 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
             this.mRecyclerView = recyclerView;
         }
 
+        /**
+         * 添加一种Item类型 必须实现 {@link RvItemViewDelegate} 的接口
+         *
+         * @param delegate Item {@link RvItemViewDelegate}
+         */
         public Builder<T> addDelegate(RvItemViewDelegate<T> delegate) {
             mAdapter.addDelegate(delegate);
             return this;
@@ -528,6 +568,11 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
             return this;
         }
 
+        /**
+         * 设置Data
+         *
+         * @param data Data
+         */
         public Builder<T> setData(List<T> data) {
             mAdapter.setData(data);
             return this;
@@ -544,36 +589,75 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
         }
 
         /**
-         * <P>设置是否允许ItemTouch</P>
+         * <P>设置是否允许ItemTouch  <br/>
+         * {@link BaseItemTouchHelper} 在此初始化
+         * </P>
          * <P>可以通过 @link Builder#setItemTouchMode(int)} 设置ItemTouch的类型</P>
          * <P>可以通过 {@link Builder#setItemTouchHelper(BaseItemTouchHelper)} 设置拓展ItemTouch的Help类</P>
          *
          * @param enable true-false
          */
         public Builder<T> setItemTouchEnable(boolean enable) {
+            mAdapter.setItemTouchEnable(enable);
             return this;
         }
 
         /**
          * <P> 设置ItemTouch的类型</P>
+         * <p>
+         * <li> {@link BaseItemTouchHelper#DRAG_ENABLE} 允许拖动</li>
+         * <li> {@link BaseItemTouchHelper#SWIP_ENABLE} 允许滑动删除</li>
+         * <li> {@link BaseItemTouchHelper#SAME_MOVE} 相同类型的Item才能互换位置</li>
+         * </P>
          * <P> 使用前必须先设置 {@link Builder#setItemTouchEnable(boolean)}</P>
          * <P>可以通过{@link Builder#setItemTouchHelper(BaseItemTouchHelper)} 设置拓展ItemTouch的Help类</P>
          *
          * @param model ItemTouch的模式
          */
-        public Builder<T> setItemTouchMode(int model) {
-            mAdapter.setItemTouch(model);
+        public Builder<T> setItemTouchModel(int model) {
+            mAdapter.setItemTouchModel(model);
             return this;
         }
 
         /**
-         * <P>设置拓展ItemTouch的Help类</P>
-         * <P>使用前必须先设置 {@link Builder#setItemTouchEnable(boolean)} 为true </P>
-         * <P>可以通过 {@link Builder#setItemTouchMode(int)} 设置ItemTouch的类型 默认为 BaseItemHelper.DEFAULT_MODEL</P>
+         * <p>
+         * 设置Item Drag 的方向  默认全选
+         * <li> {@link android.support.v7.widget.helper.ItemTouchHelper#UP}</li>
+         * <li> {@link android.support.v7.widget.helper.ItemTouchHelper#DOWN}</li>
+         * <li> {@link android.support.v7.widget.helper.ItemTouchHelper#LEFT}</li>
+         * <li> {@link android.support.v7.widget.helper.ItemTouchHelper#RIGHT}</li>
+         * </P>
+         *
+         * @param flag flags
+         */
+        public Builder<T> setItemDragFlag(int flag) {
+            mAdapter.setItemTouchDragFlag(flag);
+            return this;
+        }
+
+        /**
+         * <p>
+         * 设置Item Swiped 的方向 默认全选
+         * <li> {@link android.support.v7.widget.helper.ItemTouchHelper#START}</li>
+         * <li> {@link android.support.v7.widget.helper.ItemTouchHelper#END}</li>
+         * </P>
+         *
+         * @param flag flags
+         */
+        public Builder<T> setItemSwipFalg(int flag) {
+            mAdapter.setItemTouchSwipedFlag(flag);
+            return this;
+        }
+
+        /**
+         * <P>设置拓展ItemTouch的Help类 设置后会清除原先的ItemTouchHelper</P>
+         * <P>必须先设置 然后再设置 {@link Builder#setItemTouchEnable(boolean)} 为true </P>
+         * <P>可以通过 {@link Builder#setItemTouchModel(int)} 设置ItemTouch的类型 默认为 BaseItemHelper.DEFAULT_MODEL</P>
          *
          * @param itemTouchHelper itemtouch的help类  继承自{@linkplain BaseItemTouchHelper}
          */
         public Builder<T> setItemTouchHelper(BaseItemTouchHelper itemTouchHelper) {
+            mAdapter.setItemTouchHelper(itemTouchHelper);
             return this;
         }
 
@@ -613,8 +697,23 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
             return this;
         }
 
-        public Builder<T> setOnItemTouchCallBack(RvItemTouchHelper.OnItemDragAndSwipeListener onItemDragAndSwipeListener) {
-            mAdapter.setItemTouchListener(onItemDragAndSwipeListener);
+        /**
+         * 设置Item 拖动的监听
+         *
+         * @param listener Item 拖动的监听
+         */
+        public Builder<T> setItemDragListener(BaseItemTouchHelper.OnItemDragListener listener) {
+            mAdapter.setItemDragListener(listener);
+            return this;
+        }
+
+        /**
+         * 设置Item 滑动删除的监听
+         *
+         * @param listener Item 滑动删除的监听
+         */
+        public Builder<T> setItemSwipListener(BaseItemTouchHelper.OnItemSwipedListener listener) {
+            mAdapter.setItemSwipeListener(listener);
             return this;
         }
     }

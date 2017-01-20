@@ -1,153 +1,118 @@
 package io.github.anotherme17.commonrvadapter.helper;
 
 import android.graphics.Canvas;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-
-import io.github.anotherme17.commonrvadapter.Constants;
-import io.github.anotherme17.commonrvadapter.adapter.RecyclerViewAdapter;
+import android.view.View;
 
 /**
  * Created by user798 on 2017/1/5.
  */
 
-public class RvItemTouchHelper extends ItemTouchHelper.Callback {
+public class RvItemTouchHelper extends BaseItemTouchHelper {
 
     public static final float ALPHA_FULL = 1.0f;
 
-    private boolean isLongPressDragEnabled = false;
-    private boolean isItemViewSwipeEnabled = false;
-    private boolean isSameMove = false;
-    private int defaultDragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
-    private int defaultSwipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+    float mMoveThreshold = 0.1f;
+    float mSwipeThreshold = 0.7f;
 
+    private OnItemSwipingListener mOnItemSwipingListener;
 
-    private RecyclerViewAdapter mAdapter;
-
-    private ItemTouchHelper mItemTouchHelper;
-
-    private OnItemDragAndSwipeListener mOnItemDragAndSwipeListener;
-
-    public RvItemTouchHelper(RecyclerViewAdapter adapter) {
-        this.mAdapter = adapter;
-
-        mItemTouchHelper = new ItemTouchHelper(this);
-    }
-
-    public void setModel(int model) {
-        isLongPressDragEnabled = (model & Constants.DRAG_ENABLE) != 0;
-        isItemViewSwipeEnabled = (model & Constants.SWIP_ENABLE) != 0;
-        isSameMove = (model & Constants.SAME_MOVE) != 0;
-    }
-
-    @Override
-    public boolean isLongPressDragEnabled() {
-        return isLongPressDragEnabled;
-    }
-
-    @Override
-    public boolean isItemViewSwipeEnabled() {
-        return isItemViewSwipeEnabled;
-    }
-
-    @Override
-    public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
-        if (actionState != ItemTouchHelper.ACTION_STATE_IDLE) {
-            viewHolder.itemView.setSelected(true);
-        }
-        super.onSelectedChanged(viewHolder, actionState);
-    }
-
-    @Override
-    public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-        int dragFlags = defaultDragFlags;
-        int swipeFlags = defaultSwipeFlags;
-
-        // 当加了 HeaderAndFooterAdapter 时需要加上下面的判断
-        if (mAdapter.isHeaderOrFooter(viewHolder)) {
-            dragFlags = swipeFlags = ItemTouchHelper.ACTION_STATE_IDLE;
-        }
-
-        return makeMovementFlags(dragFlags, swipeFlags);
-    }
-
-    @Override
-    public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-        if (isSameMove) {
-            if (viewHolder.getItemViewType() != target.getItemViewType()) {
-                return false;
-            }
-        }
-        if (mAdapter.isHeaderOrFooter(viewHolder) || mAdapter.isHeaderOrFooter(target))
-            return false;
-       /* if (mOnItemDragAndSwipeListener != null) {
-            mOnItemDragAndSwipeListener.onItemMove(recyclerView, viewHolder, target);
-        }
-        mAdapter.moveItem(viewHolder, target);*/
-        return true;
-    }
-
-    @Override
-    public void onMoved(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, int fromPos, RecyclerView.ViewHolder target, int toPos, int x, int y) {
-        super.onMoved(recyclerView, viewHolder, fromPos, target, toPos, x, y);
-
-        if (mOnItemDragAndSwipeListener != null) {
-            mOnItemDragAndSwipeListener.onItemMove(recyclerView, viewHolder, target);
-        }
-        mAdapter.onItemDragMoved(viewHolder, target);
-        /*if (mOnItemDragAndSwipeListener != null) {
-            mOnItemDragAndSwipeListener.onItemMoved(recyclerView, viewHolder, target);
-        }*/
-
-    }
-
-    @Override
-    public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-        if (mOnItemDragAndSwipeListener != null) {
-            mOnItemDragAndSwipeListener.onItemSwiped(viewHolder, direction);
-        }
-        mAdapter.removeItem(viewHolder);
+    public RvItemTouchHelper() {
+        super();
     }
 
     @Override
     public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-       /* if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+        if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE && !mAdapter.isHeaderOrFooter(viewHolder)) {
             View itemView = viewHolder.itemView;
             float alpha = ALPHA_FULL - Math.abs(dX) / (float) itemView.getWidth();
             ViewCompat.setAlpha(viewHolder.itemView, alpha);
-        }*/
+        }
     }
 
     @Override
     public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
         super.clearView(recyclerView, viewHolder);
-       /* ViewCompat.setAlpha(viewHolder.itemView, ALPHA_FULL);
-        viewHolder.itemView.setSelected(false);*/
+        if (!mAdapter.isHeaderOrFooter(viewHolder)) {
+            ViewCompat.setAlpha(viewHolder.itemView, ALPHA_FULL);
+            viewHolder.itemView.setSelected(false);
+        }
     }
 
-    public ItemTouchHelper getItemTouchHelper() {
-        return mItemTouchHelper;
+    @Override
+    public float getMoveThreshold(RecyclerView.ViewHolder viewHolder) {
+        return mMoveThreshold;
     }
 
-    public void setOnItemDragAndSwipeListener(OnItemDragAndSwipeListener onItemDragAndSwipeListener) {
-        this.mOnItemDragAndSwipeListener = onItemDragAndSwipeListener;
+    @Override
+    public float getSwipeThreshold(RecyclerView.ViewHolder viewHolder) {
+        return mSwipeThreshold;
     }
 
-    public void setDragFlags(int dragFlags) {
-        this.defaultDragFlags = dragFlags;
+    /**
+     * Set the fraction that the user should move the View to be considered as swiped.
+     * The fraction is calculated with respect to RecyclerView's bounds.
+     * <p>
+     * Default value is .5f, which means, to swipe a View, user must move the View at least
+     * half of RecyclerView's width or height, depending on the swipe direction.
+     *
+     * @param swipeThreshold A float value that denotes the fraction of the View size. Default value
+     *                       is .8f .
+     */
+    public void setSwipeThreshold(float swipeThreshold) {
+        mSwipeThreshold = swipeThreshold;
     }
 
-    public void setSwipeFlags(int swipeFlags) {
-        this.defaultSwipeFlags = swipeFlags;
+
+    /**
+     * Set the fraction that the user should move the View to be considered as it is
+     * dragged. After a view is moved this amount, ItemTouchHelper starts checking for Views
+     * below it for a possible drop.
+     *
+     * @param moveThreshold A float value that denotes the fraction of the View size. Default value is
+     *                      .1f .
+     */
+    public void setMoveThreshold(float moveThreshold) {
+        mMoveThreshold = moveThreshold;
     }
 
-    public interface OnItemDragAndSwipeListener {
-        void onItemMove(RecyclerView recyclerView, RecyclerView.ViewHolder from, RecyclerView.ViewHolder to);
 
-        void onItemMoved(RecyclerView recyclerView, RecyclerView.ViewHolder from, RecyclerView.ViewHolder to);
+    @Override
+    public void onChildDrawOver(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
+                                float dX, float dY, int actionState, boolean isCurrentlyActive) {
+        super.onChildDrawOver(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
 
-        void onItemSwiped(RecyclerView.ViewHolder viewHolder, int direction);
+        if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE
+                && !mAdapter.isHeaderOrFooter(viewHolder)) {
+            View itemView = viewHolder.itemView;
+
+            c.save();
+            if (dX > 0) {
+                c.clipRect(itemView.getLeft(), itemView.getTop(),
+                        itemView.getLeft() + dX, itemView.getBottom());
+                c.translate(itemView.getLeft(), itemView.getTop());
+            } else {
+                c.clipRect(itemView.getRight() + dX, itemView.getTop(),
+                        itemView.getRight(), itemView.getBottom());
+                c.translate(itemView.getRight() + dX, itemView.getTop());
+            }
+            if (mOnItemSwipingListener != null)
+                mOnItemSwipingListener.onItemSwiping(c, viewHolder, dX, dY, isCurrentlyActive);
+            c.restore();
+        }
     }
+
+    public void setOnItemSwipingListener(OnItemSwipingListener listener) {
+        this.mOnItemSwipingListener = listener;
+    }
+
+    public interface OnItemSwipingListener {
+        void onItemSwiping(Canvas c, RecyclerView.ViewHolder viewHolder,
+                           float dX, float dY, boolean isCurrentlyActive);
+    }
+
 
 }

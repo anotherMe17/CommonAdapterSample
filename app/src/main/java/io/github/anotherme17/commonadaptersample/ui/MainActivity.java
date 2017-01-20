@@ -50,7 +50,8 @@ public class MainActivity extends BaseActivity {
             ActModel model = new ActModel(txt[i], img[i]);
             mList.add(model);
         }
-
+//test
+        //// TEST :2017/1/20  By Administrator
         mNormalRv.setLayoutManager(new GridLayoutManager(this, 2));
 
         mAdapter = new RecyclerViewAdapter.Builder<ActModel>(mNormalRv)

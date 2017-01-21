@@ -3,6 +3,7 @@ package io.github.anotherme17.commonrvadapter.adapter;
 import android.content.Context;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
+import android.support.v4.util.SparseArrayCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -36,6 +37,13 @@ import io.github.anotherme17.commonrvadapter.manager.RvDelegateManager;
  */
 public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHolder> {
 
+    /*========== Head And Foot ==========*/
+    private static final int BASE_ITEM_TYPE_HEADER = 1024;
+    private static final int BASE_ITEM_TYPE_FOOTER = 2048;
+
+    private SparseArrayCompat<View> mHeaderViews = new SparseArrayCompat<>();
+    private SparseArrayCompat<View> mFootViews = new SparseArrayCompat<>();
+
     private int mDefaultItemId = 0;
 
     protected Context mContext;
@@ -45,8 +53,6 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
     private RecyclerView mRecyclerView;
 
     private RvDelegateManager<T> mDelegateManager;
-
-    private RvHeadAndFootAdapter mHeadAndFootAdapter;
 
     private boolean mIsIgnoreCheckedChanged = true;
 
@@ -82,6 +88,11 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
     public RecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == R.id.RvEmptyView_Type_Id)
             return new RecyclerViewHolder(mEmptyLayout);
+        if (mHeaderViews.get(viewType) != null) {
+            return new RecyclerViewHolder(mHeaderViews.get(viewType));
+        } else if (mFootViews.get(viewType) != null) {
+            return new RecyclerViewHolder(mFootViews.get(viewType));
+        }
 
         RecyclerViewHolder holder = new RecyclerViewHolder(LayoutInflater.from(mContext).inflate(viewType, parent, false),
                 mRecyclerView, this, mOnRvItemClickListener, mOnRvItemLongClickListener);
@@ -109,6 +120,8 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
     public void onBindViewHolder(RecyclerViewHolder holder, int position) {
         if (holder.getItemViewType() == R.id.RvEmptyView_Type_Id)
             return;
+        if (isHeaderOrFooter(holder))
+            return;
 
         // 在设置值的过程中忽略选中状态变化
         mIsIgnoreCheckedChanged = true;
@@ -122,7 +135,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
     public void onViewAttachedToWindow(RecyclerViewHolder holder) {
         super.onViewAttachedToWindow(holder);
         int type = holder.getItemViewType();
-        if (type == R.id.RvEmptyView_Type_Id) {
+        if (type == R.id.RvEmptyView_Type_Id || isHeaderOrFooter(holder)) {
             setFullSpan(holder);
         }
     }
@@ -141,6 +154,11 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
                     int viewType = getItemViewType(position);
                     if (viewType == R.id.RvEmptyView_Type_Id)
                         return gridLayoutManager.getSpanCount();
+                    if (mHeaderViews.get(viewType) != null) {
+                        return gridLayoutManager.getSpanCount();
+                    } else if (mFootViews.get(viewType) != null) {
+                        return gridLayoutManager.getSpanCount();
+                    }
                     if (spanSizeLookup != null) {
                         return spanSizeLookup.getSpanSize(position - getHeadersCount());
                     }
@@ -169,11 +187,25 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
     public int getItemViewType(int position) {
         if (getEmptyViewCount() == 1)
             return R.id.RvEmptyView_Type_Id;
+        if (isHeaderView(position))
+            return mHeaderViews.keyAt(position);
+        if (isFooterView(position))
+            return mFootViews.keyAt(position);
         return mDefaultItemId == 0 ? mDelegateManager.getItemViewType(position, mData.get(position)) : mDefaultItemId;
     }
 
     @Override
     public int getItemCount() {
+        //当getEmptyViewCount() == 1 时显示EmptyView ,返回的ItemCount应该加上头和尾
+        return (getEmptyViewCount() == 1 ? 1 : mData.size()) + (getHeadersCount() + getFootersCount());
+    }
+
+    /**
+     * 获取真实数据的大小,当数据为空时返回是否显示EmptyView
+     *
+     * @return
+     */
+    public int getRealItemCount() {
         return getEmptyViewCount() == 1 ? 1 : mData.size();
     }
 
@@ -299,11 +331,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
     }
 
     public void notifyItemRangeInsertedWrapper(int startPosition, int itemCount) {
-        if (mHeadAndFootAdapter == null) {
-            notifyItemRangeChanged(startPosition, itemCount);
-        } else {
-            mHeadAndFootAdapter.notifyItemRangeChanged(mHeadAndFootAdapter.getHeadersCount() + startPosition, itemCount);
-        }
+        notifyItemRangeChanged(getHeadersCount() + startPosition, itemCount);
     }
 
     /**
@@ -332,11 +360,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
     }
 
     public void notifyDataSetChangedWrapper() {
-        if (mHeadAndFootAdapter == null) {
-            notifyDataSetChanged();
-        } else {
-            mHeadAndFootAdapter.notifyDataSetChanged();
-        }
+        notifyDataSetChanged();
     }
 
     /**
@@ -362,11 +386,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
     }
 
     public void notifyItemRemovedWrapper(int position) {
-        if (mHeadAndFootAdapter == null) {
-            notifyItemRemoved(position);
-        } else {
-            mHeadAndFootAdapter.notifyItemRemoved(mHeadAndFootAdapter.getHeadersCount() + position);
-        }
+        notifyItemRemoved(getHeadersCount() + position);
     }
 
     /**
@@ -386,12 +406,8 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
      */
     public void removeItem(RecyclerView.ViewHolder viewHolder) {
         int position = viewHolder.getAdapterPosition();
-        if (mHeadAndFootAdapter != null) {
-            mData.remove(position - mHeadAndFootAdapter.getHeadersCount());
-            mHeadAndFootAdapter.notifyItemRemoved(position);
-        } else {
-            removeItem(position);
-        }
+        mData.remove(position - getHeadersCount());
+        notifyItemRemoved(position);
     }
 
     /**
@@ -404,11 +420,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
     }
 
     public void notifyItemInsertedWrapper(int position) {
-        if (mHeadAndFootAdapter == null) {
-            notifyItemInserted(position);
-        } else {
-            mHeadAndFootAdapter.notifyItemInserted(mHeadAndFootAdapter.getHeadersCount() + position);
-        }
+        notifyItemInserted(getHeadersCount() + position);
     }
 
     /**
@@ -442,11 +454,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
 
 
     public void notifyItemChangedWrapper(int position) {
-        if (mHeadAndFootAdapter == null) {
-            notifyItemChanged(position);
-        } else {
-            mHeadAndFootAdapter.notifyItemChanged(mHeadAndFootAdapter.getHeadersCount() + position);
-        }
+        notifyItemChanged(getHeadersCount() + position);
     }
 
     /**
@@ -471,11 +479,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
     }
 
     public void notifyItemMovedWrapper(int fromPosition, int toPosition) {
-        if (mHeadAndFootAdapter == null) {
-            notifyItemMoved(fromPosition, toPosition);
-        } else {
-            mHeadAndFootAdapter.notifyItemMoved(mHeadAndFootAdapter.getHeadersCount() + fromPosition, mHeadAndFootAdapter.getHeadersCount() + toPosition);
-        }
+        notifyItemMoved(getHeadersCount() + fromPosition, getHeadersCount() + toPosition);
     }
 
     /**
@@ -504,8 +508,8 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
         int fromPosition = fromHolder.getAdapterPosition();
         int toPosition = toHolder.getAdapterPosition();
 
-        int tFrom = fromPosition - mHeadAndFootAdapter.getHeadersCount();
-        int tTo = toPosition - mHeadAndFootAdapter.getHeadersCount();
+        int tFrom = fromPosition - getHeadersCount();
+        int tTo = toPosition - getHeadersCount();
 
         if (tFrom < tTo) {
             for (int i = tFrom; i < tTo; i++) {
@@ -517,7 +521,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
             }
         }
 
-        mHeadAndFootAdapter.notifyItemMoved(fromPosition, toPosition);
+        notifyItemMoved(fromPosition, toPosition);
     }
 
     /**
@@ -540,30 +544,19 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
 
 
     public void addHeaderView(View headerView) {
-        getHeaderAndFooterAdapter().addHeaderView(headerView);
+        mHeaderViews.put(mHeaderViews.size() + BASE_ITEM_TYPE_HEADER, headerView);
     }
 
     public void addFooterView(View footerView) {
-        getHeaderAndFooterAdapter().addFooterView(footerView);
+        mFootViews.put(mFootViews.size() + BASE_ITEM_TYPE_FOOTER, footerView);
     }
 
     public int getHeadersCount() {
-        return mHeadAndFootAdapter == null ? 0 : mHeadAndFootAdapter.getHeadersCount();
+        return mHeaderViews.size();
     }
 
     public int getFootersCount() {
-        return mHeadAndFootAdapter == null ? 0 : mHeadAndFootAdapter.getFootersCount();
-    }
-
-    public RvHeadAndFootAdapter getHeaderAndFooterAdapter() {
-        if (mHeadAndFootAdapter == null) {
-            synchronized (RecyclerViewAdapter.this) {
-                if (mHeadAndFootAdapter == null) {
-                    mHeadAndFootAdapter = new RvHeadAndFootAdapter(this);
-                }
-            }
-        }
-        return mHeadAndFootAdapter;
+        return mFootViews.size();
     }
 
     /**
@@ -574,6 +567,14 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
      */
     public boolean isHeaderOrFooter(RecyclerView.ViewHolder viewHolder) {
         return viewHolder.getAdapterPosition() < getHeadersCount() || viewHolder.getAdapterPosition() >= getHeadersCount() + getItemCount();
+    }
+
+    private boolean isHeaderView(int position) {
+        return position < getHeadersCount();
+    }
+
+    private boolean isFooterView(int position) {
+        return position >= getHeadersCount() + getRealItemCount();
     }
 
     /*=== listener ===*/
@@ -775,7 +776,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
         }
 
         public RecyclerViewAdapter<T> build() {
-            mRecyclerView.setAdapter(mAdapter.getHeaderAndFooterAdapter());
+            mRecyclerView.setAdapter(mAdapter);
             return mAdapter;
         }
 

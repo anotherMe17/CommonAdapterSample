@@ -50,10 +50,8 @@ public class MainActivity extends BaseActivity {
             ActModel model = new ActModel(txt[i], img[i]);
             mList.add(model);
         }
-        //test
-        //// test pullrequest
-        mNormalRv.setLayoutManager(new GridLayoutManager(this, 2));
 
+        mNormalRv.setLayoutManager(new GridLayoutManager(this, 2));
         mAdapter = new RecyclerViewAdapter.Builder<ActModel>(mNormalRv)
                 .addDelegate(new ActDelegate())
                 .setData(mList)

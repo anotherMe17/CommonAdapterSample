@@ -21,7 +21,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import io.github.anotherme17.commonrvadapter.adapter.RecyclerViewAdapter;
-import io.github.anotherme17.commonrvadapter.adapter.RvHeadAndFootAdapter;
 import io.github.anotherme17.commonrvadapter.holder.RecyclerViewHolder;
 import io.github.anotherme17.commonrvadapter.listener.OnItemDragCallback;
 import io.github.anotherme17.commonrvadapter.listener.OnNoDoubleClickListener;
@@ -204,11 +203,7 @@ public class RvHolderHelper implements View.OnLongClickListener, CompoundButton.
                 RecyclerViewAdapter recyclerViewAdapter;
 
                 RecyclerView.Adapter adapter = mRecyclerView.getAdapter();
-                if (adapter instanceof RvHeadAndFootAdapter) {
-                    recyclerViewAdapter = (RecyclerViewAdapter) ((RvHeadAndFootAdapter) adapter).getInnerAdapter();
-                } else {
-                    recyclerViewAdapter = (RecyclerViewAdapter) adapter;
-                }
+                recyclerViewAdapter = (RecyclerViewAdapter) adapter;
                 if (!recyclerViewAdapter.isIgnoreCheckedChanged()) {
                     mOnRvItemChildCheckedChangeListener.onRvItemChildCheckedChanged(mRecyclerView, buttonView, getPosition(), isChecked);
                 }

@@ -11,7 +11,7 @@ import android.view.animation.LinearInterpolator;
 
 public abstract class BaseAnimation {
 
-    protected long mDuration = 800;
+    protected long mDuration = 300;
     protected Interpolator mInterpolator = new LinearInterpolator();
 
     public abstract Animator[] getAnimators(View view);

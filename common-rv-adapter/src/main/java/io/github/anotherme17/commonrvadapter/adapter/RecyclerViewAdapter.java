@@ -153,7 +153,6 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
             return;
         if (isHeaderOrFooter(holder))
             return;
-
         // 在设置值的过程中忽略选中状态变化
         mIsIgnoreCheckedChanged = true;
 
@@ -173,11 +172,17 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
         }
     }
 
+    @Override
+    public void onViewDetachedFromWindow(RecyclerViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+    }
+
     private void addAnimation(RecyclerViewHolder holder) {
         if (mLoadAnimationEnable) {
-            if (!mFirstShowEnable || holder.getLayoutPosition() > mLastShowPosition) {
+            if (!mFirstShowEnable) {
                 if (mShowAnimation == null)
                     throw new IllegalArgumentException("animation is empty please set an animation");
+                System.out.println("animation positioni = " + holder.getLayoutPosition());
                 for (Animator animator : mShowAnimation.getAnimators(holder.itemView)) {
                     startAnimation(animator, mShowAnimation.getDuration(), mShowAnimation.getInterpolator());
                 }
@@ -190,6 +195,11 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
         anim.setDuration(duration).start();
         anim.setInterpolator(interpolator);
     }
+
+    protected void startAnimation(int position) {
+
+    }
+
 
     public void setLoadAnimation(@AnimationType int animationType) {
         switch (animationType) {
@@ -361,7 +371,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
      *
      * @param model
      */
-    public void setItemTouchModel(int model) {
+    public void setItemTouchModel(@BaseItemTouchHelper.ItemTouchModel int model) {
         if (mTouchHelper == null)
             throw new IllegalArgumentException("please use setItemTouchEnable(true) to create BaseItemTouchHelper first");
         mTouchHelper.setItemTouchMode(model);
@@ -805,7 +815,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
          *
          * @param model ItemTouch的模式
          */
-        public Builder<T> setItemTouchModel(int model) {
+        public Builder<T> setItemTouchModel(@BaseItemTouchHelper.ItemTouchModel int model) {
             mAdapter.setItemTouchModel(model);
             return this;
         }
@@ -859,6 +869,26 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
          */
         public Builder<T> setEmptyView(View emptyView) {
             mAdapter.setEmptyView(emptyView);
+            return this;
+        }
+
+        public Builder<T> setLoadAnimation(@AnimationType int animationType) {
+            mAdapter.setLoadAnimation(animationType);
+            return this;
+        }
+
+        public Builder<T> setLoadAnimation(BaseAnimation animation) {
+            mAdapter.setLoadAnimation(animation);
+            return this;
+        }
+
+        public Builder<T> setLoadAnimationEnable(boolean enable) {
+            mAdapter.setLoadAnimationEnable(enable);
+            return this;
+        }
+
+        public Builder<T> setFirstShowEnable(boolean enable) {
+            mAdapter.setFirshShowEnable(enable);
             return this;
         }
 

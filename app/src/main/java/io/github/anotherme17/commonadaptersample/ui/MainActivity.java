@@ -28,11 +28,11 @@ public class MainActivity extends BaseActivity {
     RecyclerView mNormalRv;
 
     private int[] img = new int[]{R.drawable.logo,
-            R.drawable.logo, R.drawable.logo, R.drawable.logo};
+            R.drawable.logo, R.drawable.logo, R.drawable.logo, R.drawable.logo};
 
-    private String[] txt = new String[]{"Normal\nRecyclerView", "ItemTouch", "EmptyView", "HeadAndFootView"};
+    private String[] txt = new String[]{"NormalRv", "ItemTouchRv", "EmptyViewRv", "AnimationRv"};
 
-    private Class[] mClasses = new Class[]{NormalRvActivity.class, ItemTouchActivity.class, EmptyActivity.class};
+    private Class[] mClasses = new Class[]{NormalRvActivity.class, ItemTouchActivity.class, EmptyActivity.class, AnimationActivity.class};
 
     private List<ActModel> mList = new ArrayList<>();
 

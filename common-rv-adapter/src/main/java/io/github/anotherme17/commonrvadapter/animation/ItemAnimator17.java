@@ -34,11 +34,14 @@ public class ItemAnimator17 extends BaseItemAnimator {
 
     private static final long DEFAULT_ADD_DURATION = 600;
     private static final long DEFAULT_MOVE_DURATION = 600;
-    private static final long DEFAULT_REMOVE_DURATION = 6000;
+    private static final long DEFAULT_REMOVE_DURATION = 600;
     private static final long DEFAULT_CHANGE_DURATION = 600;
 
-    public ItemAnimator17() {
+    private RecyclerView mRecyclerView;
+
+    public ItemAnimator17(RecyclerView recyclerView) {
         this(DEFAULT_ADD_DURATION, DEFAULT_MOVE_DURATION, DEFAULT_REMOVE_DURATION, DEFAULT_CHANGE_DURATION);
+        this.mRecyclerView = recyclerView;
     }
 
     public ItemAnimator17(long addDuration, long moveDuration, long removeDuration, long changeDuration) {
@@ -85,7 +88,6 @@ public class ItemAnimator17 extends BaseItemAnimator {
 
     @Override
     public boolean animateMove(RecyclerView.ViewHolder holder, int fromX, int fromY, int toX, int toY) {
-        /*System.out.println("animate move fromX = " + fromX + " fromY = " + fromY + " toX = " + toX + " toY = " + toY);*/
         final View view = holder.itemView;
         fromX += ViewCompat.getTranslationX(holder.itemView);
         fromY += ViewCompat.getTranslationY(holder.itemView);
@@ -238,8 +240,10 @@ public class ItemAnimator17 extends BaseItemAnimator {
     public boolean animateAdd(RecyclerView.ViewHolder holder) {
         System.out.println("animateAdd");
         resetAnimation(holder);
-        //ViewCompat.setAlpha(holder.itemView, 0.5f);
-        ViewCompat.setTranslationX(holder.itemView, 1440);
+
+        ViewCompat.setAlpha(holder.itemView, 0.5f);
+        ViewCompat.setTranslationX(holder.itemView, -mRecyclerView.getLayoutManager().getWidth());
+
         mPendingAdditions.add(holder);
         return true;
     }
@@ -249,10 +253,10 @@ public class ItemAnimator17 extends BaseItemAnimator {
         final View view = holder.itemView;
         final ViewPropertyAnimatorCompat animation = ViewCompat.animate(view);
         mAddAnimations.add(holder);
-        System.out.println("add animation duration = " + getAddDuration());
+        System.out.println("-----------------------------animationAddImpl");
         animation
                 .translationX(0)
-                //.alpha(1)
+                .alpha(1)
                 .setDuration(getAddDuration())
                 .setListener(new VpaListenerAdapter() {
                     @Override

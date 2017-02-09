@@ -16,7 +16,7 @@ import io.github.anotherme17.commonadaptersample.R;
 import io.github.anotherme17.commonadaptersample.base.BaseActivity;
 import io.github.anotherme17.commonadaptersample.delegate.StringDelegate;
 import io.github.anotherme17.commonrvadapter.adapter.RecyclerViewAdapter;
-import io.github.anotherme17.commonrvadapter.animation.SlideScaleInOutRightItemAnimator;
+import io.github.anotherme17.commonrvadapter.animation.ItemAnimator17;
 
 /**
  * Created by Administrator on 2017/1/22.
@@ -55,8 +55,8 @@ public class AnimationActivity extends BaseActivity {
                 .setLoadAnimation(RecyclerViewAdapter.SLIDEIN_LEFT)
                 .setFirstShowEnable(false)
                 .build();
-        SlideScaleInOutRightItemAnimator animator17 = new SlideScaleInOutRightItemAnimator(mRv);
-        //ItemAnimator17 animator17=new ItemAnimator17();
+        //SlideScaleInOutRightItemAnimator animator17 = new SlideScaleInOutRightItemAnimator(mRv);
+        ItemAnimator17 animator17=new ItemAnimator17(mRv);
         mRv.setItemAnimator(animator17);
     }
 
@@ -70,11 +70,11 @@ public class AnimationActivity extends BaseActivity {
 
     @OnClick(R.id.add_btn)
     public void addItem() {
-        mAdapter.addItem(10, "Add Item");
+        mAdapter.addItem(5, "Add Item");
     }
 
     @OnClick(R.id.del_btn)
     public void removeItem() {
-        mAdapter.removeItem(10);
+        mAdapter.removeItem(5);
     }
 }

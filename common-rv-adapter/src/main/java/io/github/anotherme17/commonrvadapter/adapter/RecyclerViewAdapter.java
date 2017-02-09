@@ -10,6 +10,7 @@ import android.support.v4.util.SparseArrayCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,6 +50,8 @@ import io.github.anotherme17.commonrvadapter.manager.RvDelegateManager;
  */
 public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHolder> {
 
+    public static final boolean DEBUG = true;
+
     /*========== Head And Foot ==========*/
     private static final int BASE_ITEM_TYPE_HEADER = 1024;
     private static final int BASE_ITEM_TYPE_FOOTER = 2048;
@@ -82,6 +85,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
     private boolean mLoadAnimationEnable = false;
     private boolean mFirstShowEnable = true;
     private int mLastShowPosition = -1;
+    private int mLastDismissPosition = -1;
 
     @IntDef({ALPHAIN, SCALEIN, SLIDEIN_BOTTOM, SLIDEIN_LEFT, SLIDEIN_RIGHT})
     @Retention(RetentionPolicy.SOURCE)
@@ -168,38 +172,47 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
         if (type == R.id.RvEmptyView_Type_Id || isHeaderOrFooter(holder)) {
             setFullSpan(holder);
         } else {
-            addAnimation(holder);
+            if (mLoadAnimationEnable) {
+                int position = holder.getLayoutPosition();
+
+                if (mFirstShowEnable && position > mLastShowPosition && mLastShowPosition > mLastDismissPosition) {
+                    //第一次显示   方向向下
+                    addAnimation(holder);
+                } else if (!mFirstShowEnable) {
+                    if (position > mLastShowPosition && mLastShowPosition > mLastDismissPosition) {
+                        //方向向下
+                        addAnimation(holder);
+                    } else if (position < mLastShowPosition && mLastShowPosition < mLastDismissPosition) {
+                        //方向向上
+                        addAnimation(holder);
+                    }
+                }
+                mLastShowPosition = position;
+            }
         }
     }
 
     @Override
     public void onViewDetachedFromWindow(RecyclerViewHolder holder) {
         super.onViewDetachedFromWindow(holder);
+        mLastDismissPosition = holder.getLayoutPosition();
     }
 
     private void addAnimation(RecyclerViewHolder holder) {
-        if (mLoadAnimationEnable) {
-            if (!mFirstShowEnable) {
-                if (mShowAnimation == null)
-                    throw new IllegalArgumentException("animation is empty please set an animation");
-                System.out.println("animation positioni = " + holder.getLayoutPosition());
-                for (Animator animator : mShowAnimation.getAnimators(holder.itemView)) {
-                    startAnimation(animator, mShowAnimation.getDuration(), mShowAnimation.getInterpolator());
-                }
-                mLastShowPosition = holder.getLayoutPosition();
-            }
+        if (mShowAnimation == null)
+            throw new IllegalArgumentException("animation is empty please set an animation");
+        if (DEBUG)
+            Log.v("RecyclerViewAdapter", "animation position = " + holder.getLayoutPosition());
+        for (Animator animator : mShowAnimation.getAnimators(holder.itemView)) {
+            startAnimation(animator, mShowAnimation.getDuration(), mShowAnimation.getInterpolator());
         }
     }
 
     protected void startAnimation(Animator anim, long duration, Interpolator interpolator) {
+        System.out.println("-----------------------------startAnimation");
         anim.setDuration(duration).start();
         anim.setInterpolator(interpolator);
     }
-
-    protected void startAnimation(int position) {
-
-    }
-
 
     public void setLoadAnimation(@AnimationType int animationType) {
         switch (animationType) {
@@ -471,6 +484,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
             mData.clear();
         }
         mLastShowPosition = -1;
+        mLastDismissPosition = -1;
         notifyDataSetChangedWrapper();
     }
 

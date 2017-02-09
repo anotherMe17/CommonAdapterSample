@@ -31,6 +31,9 @@
         <activity
             android:name=".ui.EmptyActivity"
             android:theme="@style/swipbackact"/>
+        <activity
+            android:name=".ui.AnimationActivity"
+            android:theme="@style/swipbackact"/>
 
     </application>
 

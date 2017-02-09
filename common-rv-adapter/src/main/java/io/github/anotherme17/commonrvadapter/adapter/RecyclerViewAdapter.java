@@ -1,23 +1,36 @@
 package io.github.anotherme17.commonrvadapter.adapter;
 
+import android.animation.Animator;
 import android.content.Context;
+import android.support.annotation.IntDef;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.SparseArrayCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import io.github.anotherme17.commonrvadapter.R;
 import io.github.anotherme17.commonrvadapter.RvItemViewDelegate;
+import io.github.anotherme17.commonrvadapter.animation.AlphaInAnimation;
+import io.github.anotherme17.commonrvadapter.animation.BaseAnimation;
+import io.github.anotherme17.commonrvadapter.animation.ScaleInAnimation;
+import io.github.anotherme17.commonrvadapter.animation.SlideInBottomAnimation;
+import io.github.anotherme17.commonrvadapter.animation.SlideInLeftAnimation;
+import io.github.anotherme17.commonrvadapter.animation.SlideInRightAnimation;
 import io.github.anotherme17.commonrvadapter.helper.BaseItemTouchHelper;
 import io.github.anotherme17.commonrvadapter.holder.RecyclerViewHolder;
 import io.github.anotherme17.commonrvadapter.listener.OnItemDragCallback;
@@ -37,12 +50,16 @@ import io.github.anotherme17.commonrvadapter.manager.RvDelegateManager;
  */
 public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHolder> {
 
+    public static final boolean DEBUG = true;
+    private static final String TAG = "RecyclerViewAdapter";
+
     /*========== Head And Foot ==========*/
     private static final int BASE_ITEM_TYPE_HEADER = 1024;
     private static final int BASE_ITEM_TYPE_FOOTER = 2048;
 
     private SparseArrayCompat<View> mHeaderViews = new SparseArrayCompat<>();
     private SparseArrayCompat<View> mFootViews = new SparseArrayCompat<>();
+
 
     private int mDefaultItemId = 0;
 
@@ -57,6 +74,25 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
     private boolean mIsIgnoreCheckedChanged = true;
 
     protected boolean enableDragAndSwip = false;
+
+    /*=== animation ===*/
+    public static final int ALPHAIN = 0x00000001;
+    public static final int SCALEIN = 0x00000002;
+    public static final int SLIDEIN_BOTTOM = 0x00000003;
+    public static final int SLIDEIN_LEFT = 0x00000004;
+    public static final int SLIDEIN_RIGHT = 0x00000005;
+
+    protected BaseAnimation mShowAnimation = new AlphaInAnimation();
+    private boolean mLoadAnimationEnable = false;
+    private boolean mFirstShowEnable = true;
+    private int mLastShowPosition = -1;
+    private int mLastDismissPosition = -1;
+
+    @IntDef({ALPHAIN, SCALEIN, SLIDEIN_BOTTOM, SLIDEIN_LEFT, SLIDEIN_RIGHT})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface AnimationType {
+    }
+
     /*=== empty ===*/
     private boolean ifShowEmptyView = false;
     private FrameLayout mEmptyLayout;
@@ -122,7 +158,6 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
             return;
         if (isHeaderOrFooter(holder))
             return;
-
         // 在设置值的过程中忽略选中状态变化
         mIsIgnoreCheckedChanged = true;
 
@@ -134,10 +169,88 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
     @Override
     public void onViewAttachedToWindow(RecyclerViewHolder holder) {
         super.onViewAttachedToWindow(holder);
+        if (DEBUG)
+            Log.v(TAG,"onViewAttachedToWindow  "+holder.getLayoutPosition());
         int type = holder.getItemViewType();
         if (type == R.id.RvEmptyView_Type_Id || isHeaderOrFooter(holder)) {
             setFullSpan(holder);
+        } else {
+            if (mLoadAnimationEnable) {
+                int position = holder.getLayoutPosition();
+
+                if (mFirstShowEnable && position >= mLastShowPosition && mLastShowPosition >= mLastDismissPosition) {
+                    //第一次显示   方向向下
+                    addAnimation(holder);
+                } else if (!mFirstShowEnable) {
+                    if (position >= mLastShowPosition && mLastShowPosition >= mLastDismissPosition) {
+                        //方向向下
+                        addAnimation(holder);
+                    } else if (position <= mLastShowPosition && mLastShowPosition <= mLastDismissPosition) {
+                        //方向向上
+                        addAnimation(holder);
+                    }
+                }
+                mLastShowPosition = position;
+            }
         }
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(RecyclerViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        int position = holder.getLayoutPosition();
+        if (position >= mLastDismissPosition && position <= mLastShowPosition || position <= mLastDismissPosition && position >= mLastShowPosition)
+            mLastDismissPosition = holder.getLayoutPosition();
+    }
+
+    private void addAnimation(RecyclerViewHolder holder) {
+        if (mShowAnimation == null)
+            throw new IllegalArgumentException("animation is empty please set an animation");
+        if (DEBUG)
+            Log.v("RecyclerViewAdapter", "animation position = " + holder.getLayoutPosition());
+        for (Animator animator : mShowAnimation.getAnimators(holder.itemView)) {
+            startAnimation(animator, mShowAnimation.getDuration(), mShowAnimation.getInterpolator());
+        }
+    }
+
+    protected void startAnimation(Animator anim, long duration, Interpolator interpolator) {
+        anim.setDuration(duration).start();
+        anim.setInterpolator(interpolator);
+    }
+
+    public void setLoadAnimation(@AnimationType int animationType) {
+        switch (animationType) {
+            case ALPHAIN:
+                setLoadAnimation(new AlphaInAnimation());
+                break;
+            case SCALEIN:
+                setLoadAnimation(new ScaleInAnimation());
+                break;
+            case SLIDEIN_BOTTOM:
+                setLoadAnimation(new SlideInBottomAnimation());
+                break;
+            case SLIDEIN_LEFT:
+                setLoadAnimation(new SlideInLeftAnimation());
+                break;
+            case SLIDEIN_RIGHT:
+                setLoadAnimation(new SlideInRightAnimation());
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void setLoadAnimation(@NonNull BaseAnimation animation) {
+        mLoadAnimationEnable = true;
+        mShowAnimation = animation;
+    }
+
+    public void setLoadAnimationEnable(boolean enable) {
+        mLoadAnimationEnable = enable;
+    }
+
+    public void setFirshShowEnable(boolean enable) {
+        mFirstShowEnable = enable;
     }
 
     @Override
@@ -275,7 +388,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
      *
      * @param model
      */
-    public void setItemTouchModel(int model) {
+    public void setItemTouchModel(@BaseItemTouchHelper.ItemTouchModel int model) {
         if (mTouchHelper == null)
             throw new IllegalArgumentException("please use setItemTouchEnable(true) to create BaseItemTouchHelper first");
         mTouchHelper.setItemTouchMode(model);
@@ -374,6 +487,8 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
         } else {
             mData.clear();
         }
+        mLastShowPosition = -1;
+        mLastDismissPosition = -1;
         notifyDataSetChangedWrapper();
     }
 
@@ -646,7 +761,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
         mDelegateManager.removeDelegate(itemLayoutId);
     }
 
-    /*================ Builder ================*/
+    /*================================ Builder ================================*/
 
     public static class Builder<T> {
         private final RecyclerViewAdapter<T> mAdapter;
@@ -718,7 +833,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
          *
          * @param model ItemTouch的模式
          */
-        public Builder<T> setItemTouchModel(int model) {
+        public Builder<T> setItemTouchModel(@BaseItemTouchHelper.ItemTouchModel int model) {
             mAdapter.setItemTouchModel(model);
             return this;
         }
@@ -772,6 +887,26 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
          */
         public Builder<T> setEmptyView(View emptyView) {
             mAdapter.setEmptyView(emptyView);
+            return this;
+        }
+
+        public Builder<T> setLoadAnimation(@AnimationType int animationType) {
+            mAdapter.setLoadAnimation(animationType);
+            return this;
+        }
+
+        public Builder<T> setLoadAnimation(BaseAnimation animation) {
+            mAdapter.setLoadAnimation(animation);
+            return this;
+        }
+
+        public Builder<T> setLoadAnimationEnable(boolean enable) {
+            mAdapter.setLoadAnimationEnable(enable);
+            return this;
+        }
+
+        public Builder<T> setFirstShowEnable(boolean enable) {
+            mAdapter.setFirshShowEnable(enable);
             return this;
         }
 

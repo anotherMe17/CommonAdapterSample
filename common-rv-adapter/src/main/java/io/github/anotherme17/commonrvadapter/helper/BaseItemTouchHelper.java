@@ -1,7 +1,11 @@
 package io.github.anotherme17.commonrvadapter.helper;
 
+import android.support.annotation.IntDef;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 import io.github.anotherme17.commonrvadapter.adapter.RecyclerViewAdapter;
 
@@ -32,6 +36,13 @@ public class BaseItemTouchHelper extends ItemTouchHelper.Callback {
      * 默认的ItemTouch模式
      */
     public static final int DEFAULT_MODEL = SWIP_ENABLE | DRAG_ENABLE;
+
+    @IntDef({DRAG_ENABLE, SWIP_ENABLE, SAME_MOVE, DEFAULT_MODEL})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ItemTouchModel {
+
+    }
+
     /*================ 默认的拖动和滑动的参数 ================*/
     protected int defaultDragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
     protected int defaultSwipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;

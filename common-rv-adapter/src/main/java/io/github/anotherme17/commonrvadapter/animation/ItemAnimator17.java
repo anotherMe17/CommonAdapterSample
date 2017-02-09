@@ -32,6 +32,8 @@ import android.view.View;
  */
 public class ItemAnimator17 extends BaseItemAnimator {
 
+    private static final boolean DEBUG=true;
+
     private static final long DEFAULT_ADD_DURATION = 600;
     private static final long DEFAULT_MOVE_DURATION = 600;
     private static final long DEFAULT_REMOVE_DURATION = 600;
@@ -53,7 +55,6 @@ public class ItemAnimator17 extends BaseItemAnimator {
 
     @Override
     public boolean animateRemove(RecyclerView.ViewHolder holder) {
-        System.out.println("animation remove");
         resetAnimation(holder);
         mPendingRemovals.add(holder);
         return true;
@@ -61,7 +62,6 @@ public class ItemAnimator17 extends BaseItemAnimator {
 
     @Override
     protected void animateRemoveImpl(final RecyclerView.ViewHolder holder) {
-        System.out.println("animation remove");
         final View view = holder.itemView;
         final ViewPropertyAnimatorCompat animation = ViewCompat.animate(view);
         mRemoveAnimations.add(holder);
@@ -104,14 +104,12 @@ public class ItemAnimator17 extends BaseItemAnimator {
         if (deltaY != 0) {
             ViewCompat.setTranslationY(view, -deltaY);
         }
-        System.out.println("deltaX = " + deltaX + " deltaY = " + deltaY);
         mPendingMoves.add(new MoveInfo(holder, fromX, fromY, toX, toY));
         return true;
     }
 
     @Override
     protected void animateMoveImpl(final RecyclerView.ViewHolder holder, int fromX, int fromY, int toX, int toY) {
-        System.out.println("animate move fromX = " + fromX + " fromY = " + fromY + " toX = " + toX + " toY = " + toY);
         final View view = holder.itemView;
         final int deltaX = toX - fromX;
         final int deltaY = toY - fromY;
@@ -154,7 +152,6 @@ public class ItemAnimator17 extends BaseItemAnimator {
 
     @Override
     public boolean animateChange(RecyclerView.ViewHolder oldHolder, RecyclerView.ViewHolder newHolder, int fromX, int fromY, int toX, int toY) {
-        System.out.println("animateChange ====================== ");
         if (oldHolder == newHolder) {
             // Don't know how to run change animations when the same view holder is re-used.
             // run a move animation to handle position changes.
@@ -183,7 +180,6 @@ public class ItemAnimator17 extends BaseItemAnimator {
 
     @Override
     protected void animateChangeImpl(final ChangeInfo changeInfo) {
-        System.out.println("animation change = " + changeInfo.toString());
         final RecyclerView.ViewHolder holder = changeInfo.oldHolder;
         final View view = holder == null ? null : holder.itemView;
         final RecyclerView.ViewHolder newHolder = changeInfo.newHolder;
@@ -238,9 +234,8 @@ public class ItemAnimator17 extends BaseItemAnimator {
 
     @Override
     public boolean animateAdd(RecyclerView.ViewHolder holder) {
-        System.out.println("animateAdd");
         resetAnimation(holder);
-
+        System.out.println("animateAdd");
         ViewCompat.setAlpha(holder.itemView, 0.5f);
         ViewCompat.setTranslationX(holder.itemView, -mRecyclerView.getLayoutManager().getWidth());
 
@@ -253,7 +248,6 @@ public class ItemAnimator17 extends BaseItemAnimator {
         final View view = holder.itemView;
         final ViewPropertyAnimatorCompat animation = ViewCompat.animate(view);
         mAddAnimations.add(holder);
-        System.out.println("-----------------------------animationAddImpl");
         animation
                 .translationX(0)
                 .alpha(1)
@@ -261,20 +255,17 @@ public class ItemAnimator17 extends BaseItemAnimator {
                 .setListener(new VpaListenerAdapter() {
                     @Override
                     public void onAnimationStart(View view) {
-                        System.out.println("add animation start");
                         dispatchAddStarting(holder);
                     }
 
                     @Override
                     public void onAnimationCancel(View view) {
-                        System.out.println("add animation cancel");
                         ViewCompat.setAlpha(view, 1);
                         ViewCompat.setTranslationX(view, 0);
                     }
 
                     @Override
                     public void onAnimationEnd(View view) {
-                        System.out.println("add animation end");
                         animation.setListener(null);
                         ViewCompat.setTranslationX(view, 0);
                         dispatchAddFinished(holder);

@@ -51,6 +51,7 @@ import io.github.anotherme17.commonrvadapter.manager.RvDelegateManager;
 public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHolder> {
 
     public static final boolean DEBUG = true;
+    private static final String TAG = "RecyclerViewAdapter";
 
     /*========== Head And Foot ==========*/
     private static final int BASE_ITEM_TYPE_HEADER = 1024;
@@ -168,6 +169,8 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
     @Override
     public void onViewAttachedToWindow(RecyclerViewHolder holder) {
         super.onViewAttachedToWindow(holder);
+        if (DEBUG)
+            Log.v(TAG,"onViewAttachedToWindow  "+holder.getLayoutPosition());
         int type = holder.getItemViewType();
         if (type == R.id.RvEmptyView_Type_Id || isHeaderOrFooter(holder)) {
             setFullSpan(holder);
@@ -175,14 +178,14 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
             if (mLoadAnimationEnable) {
                 int position = holder.getLayoutPosition();
 
-                if (mFirstShowEnable && position > mLastShowPosition && mLastShowPosition > mLastDismissPosition) {
+                if (mFirstShowEnable && position >= mLastShowPosition && mLastShowPosition >= mLastDismissPosition) {
                     //第一次显示   方向向下
                     addAnimation(holder);
                 } else if (!mFirstShowEnable) {
-                    if (position > mLastShowPosition && mLastShowPosition > mLastDismissPosition) {
+                    if (position >= mLastShowPosition && mLastShowPosition >= mLastDismissPosition) {
                         //方向向下
                         addAnimation(holder);
-                    } else if (position < mLastShowPosition && mLastShowPosition < mLastDismissPosition) {
+                    } else if (position <= mLastShowPosition && mLastShowPosition <= mLastDismissPosition) {
                         //方向向上
                         addAnimation(holder);
                     }
@@ -195,7 +198,9 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
     @Override
     public void onViewDetachedFromWindow(RecyclerViewHolder holder) {
         super.onViewDetachedFromWindow(holder);
-        mLastDismissPosition = holder.getLayoutPosition();
+        int position = holder.getLayoutPosition();
+        if (position >= mLastDismissPosition && position <= mLastShowPosition || position <= mLastDismissPosition && position >= mLastShowPosition)
+            mLastDismissPosition = holder.getLayoutPosition();
     }
 
     private void addAnimation(RecyclerViewHolder holder) {
@@ -209,7 +214,6 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
     }
 
     protected void startAnimation(Animator anim, long duration, Interpolator interpolator) {
-        System.out.println("-----------------------------startAnimation");
         anim.setDuration(duration).start();
         anim.setInterpolator(interpolator);
     }

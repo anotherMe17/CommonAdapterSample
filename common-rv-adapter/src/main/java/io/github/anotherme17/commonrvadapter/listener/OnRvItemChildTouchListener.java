@@ -6,9 +6,8 @@ import android.view.View;
 import io.github.anotherme17.commonrvadapter.holder.RecyclerViewHolder;
 
 /**
- * Created by user798 on 2016/12/28.
+ * @author anotherme17
  */
-
 public interface OnRvItemChildTouchListener {
     boolean onRvItemChilcTouch(RecyclerViewHolder viewHolder, View childView, MotionEvent event);
 }

@@ -10,9 +10,8 @@ import io.github.anotherme17.commonrvadapter.listener.OnRvItemClickListener;
 import io.github.anotherme17.commonrvadapter.listener.OnRvItemLongClickListener;
 
 /**
- * Created by user798 on 2016/12/28.
+ * @author anotherme17
  */
-
 public class RecyclerViewHolder extends RecyclerView.ViewHolder {
 
     private RecyclerView mRecyclerView;

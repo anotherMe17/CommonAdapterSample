@@ -3,9 +3,8 @@ package io.github.anotherme17.commonrvadapter.listener;
 import android.view.View;
 
 /**
- * Created by user798 on 2016/12/28.
+ * @author anotherme17
  */
-
 public abstract class OnNoDoubleClickListener implements View.OnClickListener {
 
     private int mClickSpaceTime = 800;

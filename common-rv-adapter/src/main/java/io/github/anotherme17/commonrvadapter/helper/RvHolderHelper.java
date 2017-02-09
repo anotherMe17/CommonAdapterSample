@@ -30,9 +30,8 @@ import io.github.anotherme17.commonrvadapter.listener.OnRvItemChildLongClickList
 import io.github.anotherme17.commonrvadapter.listener.OnRvItemChildTouchListener;
 
 /**
- * Created by user798 on 2016/12/28.
+ * @author anotherme17
  */
-
 public class RvHolderHelper implements View.OnLongClickListener, CompoundButton.OnCheckedChangeListener, View.OnTouchListener {
 
     private SparseArrayCompat<View> mViews;

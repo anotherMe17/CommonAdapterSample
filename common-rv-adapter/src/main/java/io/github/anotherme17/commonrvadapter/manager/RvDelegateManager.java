@@ -5,10 +5,13 @@ import android.support.v4.util.SparseArrayCompat;
 
 import io.github.anotherme17.commonrvadapter.RvItemViewDelegate;
 
-/**
- * Created by user798 on 2016/12/28.
- */
 
+/**
+ * ItemDelegate 帮助类
+ *
+ * @author anotherme17
+ * @version 1.0.0
+ */
 public class RvDelegateManager<T> {
 
     protected SparseArrayCompat<RvItemViewDelegate<T>> mDelegates = new SparseArrayCompat<>();

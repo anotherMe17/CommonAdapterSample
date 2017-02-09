@@ -7,7 +7,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 
 /**
- * Created by user798 on 2017/1/5.
+ * @author anotherme17
  */
 
 public class RvItemTouchHelper extends BaseItemTouchHelper {

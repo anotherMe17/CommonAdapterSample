@@ -6,9 +6,8 @@ import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 
 /**
- * Created by Administrator on 2017/1/21.
+ * @author anotherme17
  */
-
 public abstract class BaseAnimation {
 
     protected long mDuration = 300;

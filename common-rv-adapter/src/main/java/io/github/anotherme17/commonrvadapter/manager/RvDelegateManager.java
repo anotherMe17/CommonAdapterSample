@@ -57,6 +57,10 @@ public class RvDelegateManager<T> {
         }
     }
 
+    public void removeAllDelegate() {
+        mDelegates.clear();
+    }
+
     public int getItemViewType(int position, T data) {
         if (mDelegates.size() <= 0) {
             throw new DelegateNotFoundException();

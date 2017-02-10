@@ -170,7 +170,7 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
     public void onViewAttachedToWindow(RecyclerViewHolder holder) {
         super.onViewAttachedToWindow(holder);
         if (DEBUG)
-            Log.v(TAG,"onViewAttachedToWindow  "+holder.getLayoutPosition());
+            Log.v(TAG, "onViewAttachedToWindow  " + holder.getLayoutPosition());
         int type = holder.getItemViewType();
         if (type == R.id.RvEmptyView_Type_Id || isHeaderOrFooter(holder)) {
             setFullSpan(holder);
@@ -749,14 +749,41 @@ public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHol
     }
 
     /*=== delegate ===*/
+
+    /**
+     * <p>清空该Adapter中其他的{@link RvItemViewDelegate},并添加一个{@link RvItemViewDelegate}</p>
+     * <p>该方法会清空该Adapter中其他的{@link RvItemViewDelegate}</p>
+     *
+     * @param delegate Item的Delegate类型 {@link RvItemViewDelegate}
+     */
+    public void setDelegate(RvItemViewDelegate<T> delegate) {
+        mDelegateManager.removeAllDelegate();
+        addDelegate(delegate);
+    }
+
+    /**
+     * 添加一个Item类型
+     *
+     * @param delegate Item的Delegate类型 {@link RvItemViewDelegate}
+     */
     public void addDelegate(RvItemViewDelegate<T> delegate) {
         mDelegateManager.addDelegate(delegate);
     }
 
+    /**
+     * 删除一个Item的类型
+     *
+     * @param delegate Item的Delegate类型 {@link RvItemViewDelegate}
+     */
     public void removeDelegate(RvItemViewDelegate<T> delegate) {
         mDelegateManager.removeDelegate(delegate);
     }
 
+    /**
+     * 删除一个Item的类型
+     *
+     * @param itemLayoutId Item的layoutId
+     */
     public void removeDelegate(@LayoutRes int itemLayoutId) {
         mDelegateManager.removeDelegate(itemLayoutId);
     }

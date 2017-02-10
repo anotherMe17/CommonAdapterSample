@@ -43,14 +43,14 @@ import io.github.anotherme17.commonrvadapter.listener.OnRvItemLongClickListener;
 import io.github.anotherme17.commonrvadapter.manager.RvDelegateManager;
 
 /**
- * 万能RecyclerView的适配器
+ * 万能的RecyclerView适配器
  *
  * @author anotherme17
  * @version 1.0.0
  */
 public class RecyclerViewAdapter<T> extends RecyclerView.Adapter<RecyclerViewHolder> {
 
-    public static final boolean DEBUG = true;
+    private static final boolean DEBUG = true;
     private static final String TAG = "RecyclerViewAdapter";
 
     /*========== Head And Foot ==========*/

@@ -30,7 +30,7 @@ public class ItemTouchDelegate implements RvItemViewDelegate<ItemTouchModel> {
 
     @Override
     public void setItemChildListener(RvHolderHelper helper, int viewType) {
-        helper.attacthTouchListener(R.id.item_touch_img);
+        helper.attachItemDrag(R.id.item_touch_img);
     }
 
     @Override

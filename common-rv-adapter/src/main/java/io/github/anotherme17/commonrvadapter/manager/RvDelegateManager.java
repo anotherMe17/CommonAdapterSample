@@ -4,6 +4,8 @@ import android.support.annotation.LayoutRes;
 import android.support.v4.util.SparseArrayCompat;
 
 import io.github.anotherme17.commonrvadapter.RvItemViewDelegate;
+import io.github.anotherme17.commonrvadapter.exception.DelegateAlreadyExistException;
+import io.github.anotherme17.commonrvadapter.exception.DelegateNotFoundException;
 
 
 /**
@@ -19,10 +21,7 @@ public class RvDelegateManager<T> {
     public void addDelegate(RvItemViewDelegate<T> delegate) {
         int viewType = delegate.getItemLayoutId();
         if (mDelegates.get(viewType) != null) {
-            throw new IllegalArgumentException("An ItemViewDelegate is already registered for the viewTypeId = "
-                    + viewType
-                    + ". Already registered ItemViewDelegate is "
-                    + mDelegates.get(viewType));
+            throw new DelegateAlreadyExistException(viewType, mDelegates.get(viewType));
         } else {
             mDelegates.put(viewType, delegate);
         }
@@ -39,7 +38,7 @@ public class RvDelegateManager<T> {
         if (indexToRemove >= 0) {
             mDelegates.removeAt(indexToRemove);
         } else {
-            throw new IllegalArgumentException("Can not find ItemViewDelegate = " + delegate);
+            throw new DelegateNotFoundException(delegate);
         }
     }
 
@@ -54,13 +53,13 @@ public class RvDelegateManager<T> {
         if (indexToRemove >= 0) {
             mDelegates.removeAt(indexToRemove);
         } else {
-            throw new IllegalArgumentException("Can not find ItemViewDelegate Which Layout Id = " + layoutId);
+            throw new DelegateNotFoundException(layoutId);
         }
     }
 
     public int getItemViewType(int position, T data) {
         if (mDelegates.size() <= 0) {
-            throw new RuntimeException("Delegate Size = 0 Please add Delegate");
+            throw new DelegateNotFoundException();
         }
 
         for (int i = 0; i < mDelegates.size(); i++) {
@@ -69,7 +68,7 @@ public class RvDelegateManager<T> {
                 return delegate.getItemLayoutId();
             }
         }
-        throw new RuntimeException("Can not Find Delegate Please Check You Code");
+        throw new DelegateNotFoundException();
     }
 
     public RvItemViewDelegate getDelegateByViewType(int viewType) {

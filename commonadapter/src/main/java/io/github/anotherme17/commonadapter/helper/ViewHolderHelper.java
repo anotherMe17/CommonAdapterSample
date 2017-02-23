@@ -1,4 +1,4 @@
-package io.github.anotherme17.commonadapter;
+package io.github.anotherme17.commonadapter.helper;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -19,21 +19,19 @@ import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+
 /**
- * 项目名称：RapidDevelopemt
- * 类描述：
- * 创建人：renhao
- * 创建时间：2016/11/21 9:28
- * 修改备注：
+ * @author AnotherMe17
  */
-public class ViewHolder {
+public class ViewHolderHelper {
+
     private SparseArray<View> mViews;
     protected int mPosition;
     private View mConvertView;
     private Context mContext;
     protected int mLayoutId;
 
-    public ViewHolder(Context context, View itemView, ViewGroup parent, int position) {
+    public ViewHolderHelper(Context context, View itemView, ViewGroup parent, int position) {
         mContext = context;
         mConvertView = itemView;
         mPosition = position;
@@ -41,22 +39,19 @@ public class ViewHolder {
         mConvertView.setTag(this);
     }
 
-
-    public static ViewHolder get(Context context, View convertView,
-                                 ViewGroup parent, int layoutId, int position) {
+    public static ViewHolderHelper get(Context context, View convertView,
+                                       ViewGroup parent, int layoutId, int position) {
         if (convertView == null) {
-            View itemView = LayoutInflater.from(context).inflate(layoutId, parent,
-                    false);
-            ViewHolder holder = new ViewHolder(context, itemView, parent, position);
-            holder.mLayoutId = layoutId;
-            return holder;
+            View itemView = LayoutInflater.from(context).inflate(layoutId, parent, false);
+            ViewHolderHelper helper = new ViewHolderHelper(context, itemView, parent, position);
+            helper.mLayoutId = layoutId;
+            return helper;
         } else {
-            ViewHolder holder = (ViewHolder) convertView.getTag();
-            holder.mPosition = position;
-            return holder;
+            ViewHolderHelper helper = (ViewHolderHelper) convertView.getTag();
+            helper.mPosition = position;
+            return helper;
         }
     }
-
 
     /**
      * 通过viewId获取控件
@@ -99,61 +94,61 @@ public class ViewHolder {
      * @param text
      * @return
      */
-    public ViewHolder setText(int viewId, String text) {
+    public ViewHolderHelper setText(int viewId, String text) {
         TextView tv = getView(viewId);
         tv.setText(text);
         return this;
     }
     // TODO: 2016/11/21 解决ListView添加EditText的问题 By renhao
-/*    public ViewHolder setEditText(int viewId)
+/*    public ViewHolderHelper setEditText(int viewId)
     {
         EditText et=getView(viewId);
     }*/
 
-    public ViewHolder setImageResource(int viewId, int resId) {
+    public ViewHolderHelper setImageResource(int viewId, int resId) {
         ImageView view = getView(viewId);
         view.setImageResource(resId);
         return this;
     }
 
-    public ViewHolder setImageBitmap(int viewId, Bitmap bitmap) {
+    public ViewHolderHelper setImageBitmap(int viewId, Bitmap bitmap) {
         ImageView view = getView(viewId);
         view.setImageBitmap(bitmap);
         return this;
     }
 
-    public ViewHolder setImageDrawable(int viewId, Drawable drawable) {
+    public ViewHolderHelper setImageDrawable(int viewId, Drawable drawable) {
         ImageView view = getView(viewId);
         view.setImageDrawable(drawable);
         return this;
     }
 
-    public ViewHolder setBackgroundColor(int viewId, int color) {
+    public ViewHolderHelper setBackgroundColor(int viewId, int color) {
         View view = getView(viewId);
         view.setBackgroundColor(color);
         return this;
     }
 
-    public ViewHolder setBackgroundRes(int viewId, int backgroundRes) {
+    public ViewHolderHelper setBackgroundRes(int viewId, int backgroundRes) {
         View view = getView(viewId);
         view.setBackgroundResource(backgroundRes);
         return this;
     }
 
-    public ViewHolder setTextColor(int viewId, int textColor) {
+    public ViewHolderHelper setTextColor(int viewId, int textColor) {
         TextView view = getView(viewId);
         view.setTextColor(textColor);
         return this;
     }
 
-    public ViewHolder setTextColorRes(int viewId, int textColorRes) {
+    public ViewHolderHelper setTextColorRes(int viewId, int textColorRes) {
         TextView view = getView(viewId);
         view.setTextColor(mContext.getResources().getColor(textColorRes));
         return this;
     }
 
     @SuppressLint("NewApi")
-    public ViewHolder setAlpha(int viewId, float value) {
+    public ViewHolderHelper setAlpha(int viewId, float value) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             getView(viewId).setAlpha(value);
         } else {
@@ -166,19 +161,19 @@ public class ViewHolder {
         return this;
     }
 
-    public ViewHolder setVisible(int viewId, boolean visible) {
+    public ViewHolderHelper setVisible(int viewId, boolean visible) {
         View view = getView(viewId);
         view.setVisibility(visible ? View.VISIBLE : View.GONE);
         return this;
     }
 
-    public ViewHolder linkify(int viewId) {
+    public ViewHolderHelper linkify(int viewId) {
         TextView view = getView(viewId);
         Linkify.addLinks(view, Linkify.ALL);
         return this;
     }
 
-    public ViewHolder setTypeface(Typeface typeface, int... viewIds) {
+    public ViewHolderHelper setTypeface(Typeface typeface, int... viewIds) {
         for (int viewId : viewIds) {
             TextView view = getView(viewId);
             view.setTypeface(typeface);
@@ -187,51 +182,51 @@ public class ViewHolder {
         return this;
     }
 
-    public ViewHolder setProgress(int viewId, int progress) {
+    public ViewHolderHelper setProgress(int viewId, int progress) {
         ProgressBar view = getView(viewId);
         view.setProgress(progress);
         return this;
     }
 
-    public ViewHolder setProgress(int viewId, int progress, int max) {
+    public ViewHolderHelper setProgress(int viewId, int progress, int max) {
         ProgressBar view = getView(viewId);
         view.setMax(max);
         view.setProgress(progress);
         return this;
     }
 
-    public ViewHolder setMax(int viewId, int max) {
+    public ViewHolderHelper setMax(int viewId, int max) {
         ProgressBar view = getView(viewId);
         view.setMax(max);
         return this;
     }
 
-    public ViewHolder setRating(int viewId, float rating) {
+    public ViewHolderHelper setRating(int viewId, float rating) {
         RatingBar view = getView(viewId);
         view.setRating(rating);
         return this;
     }
 
-    public ViewHolder setRating(int viewId, float rating, int max) {
+    public ViewHolderHelper setRating(int viewId, float rating, int max) {
         RatingBar view = getView(viewId);
         view.setMax(max);
         view.setRating(rating);
         return this;
     }
 
-    public ViewHolder setTag(int viewId, Object tag) {
+    public ViewHolderHelper setTag(int viewId, Object tag) {
         View view = getView(viewId);
         view.setTag(tag);
         return this;
     }
 
-    public ViewHolder setTag(int viewId, int key, Object tag) {
+    public ViewHolderHelper setTag(int viewId, int key, Object tag) {
         View view = getView(viewId);
         view.setTag(key, tag);
         return this;
     }
 
-    public ViewHolder setChecked(int viewId, boolean checked) {
+    public ViewHolderHelper setChecked(int viewId, boolean checked) {
         Checkable view = (Checkable) getView(viewId);
         view.setChecked(checked);
         return this;
@@ -240,22 +235,22 @@ public class ViewHolder {
     /**
      * 关于事件的
      */
-    public ViewHolder setOnClickListener(int viewId,
-                                         View.OnClickListener listener) {
+    public ViewHolderHelper setOnClickListener(int viewId,
+                                               View.OnClickListener listener) {
         View view = getView(viewId);
         view.setOnClickListener(listener);
         return this;
     }
 
-    public ViewHolder setOnTouchListener(int viewId,
-                                         View.OnTouchListener listener) {
+    public ViewHolderHelper setOnTouchListener(int viewId,
+                                               View.OnTouchListener listener) {
         View view = getView(viewId);
         view.setOnTouchListener(listener);
         return this;
     }
 
-    public ViewHolder setOnLongClickListener(int viewId,
-                                             View.OnLongClickListener listener) {
+    public ViewHolderHelper setOnLongClickListener(int viewId,
+                                                   View.OnLongClickListener listener) {
         View view = getView(viewId);
         view.setOnLongClickListener(listener);
         return this;
